@@ -28,7 +28,8 @@ namespace Prototype_Golem
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            // Initialization logic here
+            camera = new Camera(-330, -460, 2.5f); //nice starting position for the camera
 
             base.Initialize();
         }
@@ -50,8 +51,9 @@ namespace Prototype_Golem
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
+            // Update logic here
 
+            //sort of todo: bounds on the zoom and maybe change movement speed. however this will be pointless in the final product where camera zoom and position is determined from the players state
             //TODO: input class to at the very least add multiple buttons for one thing for controller support
             //additionally, an input class would make this look less dumb.
             if(Keyboard.GetState().IsKeyDown(Keys.Left)) {
@@ -65,6 +67,13 @@ namespace Prototype_Golem
             }
             if(Keyboard.GetState().IsKeyDown(Keys.Down)) {
                 camera.Pos += new Vector2(0,-5.0f);
+            }
+
+            if(Keyboard.GetState().IsKeyDown(Keys.OemPlus)) {
+                camera.Scalar += 0.05f;
+            }
+            if(Keyboard.GetState().IsKeyDown(Keys.OemMinus)) {
+                camera.Scalar -= 0.05f;
             }
 
             base.Update(gameTime);
@@ -92,7 +101,7 @@ namespace Prototype_Golem
 
             TmxLayer baseLayer = testmap1.Layers["base"];
 
-            spriteBatch.Begin();
+            spriteBatch.Begin(transformMatrix: camera.getMatrix(_graphics.GraphicsDevice),samplerState: SamplerState.PointClamp); //PointClamp makes scaling tiles look quite nice
 
             var tiles = baseLayer.Tiles;
             foreach(TmxLayerTile tile in tiles) {
@@ -100,8 +109,8 @@ namespace Prototype_Golem
                 
                 Rectangle destRect = new Rectangle(tile.X*testmap1.TileWidth, tile.Y*testmap1.TileHeight, testmap1.TileWidth, testmap1.TileHeight); //where on the screen the tile is going to be drawn, based on the position of the tile
 
-                destRect.Location += camera.Pos.ToPoint();
-                //TODO: stop here if the location of the tile is outside the screen
+                //destRect.Location += camera.Pos.ToPoint(); this was how i moved the tile but i just move the entire spritebatch now
+                //may be worth putting this back if I want to check if i need to cull the tiles and skip all this math
 
                 int textureId = tile.Gid - baseTileset.FirstGid; 
 
