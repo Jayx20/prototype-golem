@@ -13,6 +13,7 @@ namespace Prototype_Golem
         private GraphicsDeviceManager _graphics;
         private SpriteBatch spriteBatch;
 
+        Camera camera = new Camera();
         TmxMap testmap1;
         Dictionary<string, Texture2D> tilemapTextures = new Dictionary<string, Texture2D>();
 
@@ -29,20 +30,19 @@ namespace Prototype_Golem
         {
             // TODO: Add your initialization logic here
 
-            testmap1 = new TmxMap("Maps/test1.tmx");
-
-            Texture2D prototexture = Content.Load<Texture2D>("Images/prototype1"); //this variable will dissapear so the stupid name is fine the actual data is saved in the dictionary
-
-            tilemapTextures.Add("prototype1", prototexture);
-
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            
+            testmap1 = new TmxMap("Maps/test1.tmx");
 
-            // TODO: use this.Content to load your game content here
+            Texture2D prototexture = Content.Load<Texture2D>("Images/prototype1"); //this variable will dissapear so the stupid name is fine the actual data is saved in the dictionary
+
+            tilemapTextures.Add("prototype1", prototexture);
+
         }
 
         protected override void Update(GameTime gameTime)
@@ -51,6 +51,21 @@ namespace Prototype_Golem
                 Exit();
 
             // TODO: Add your update logic here
+
+            //TODO: input class to at the very least add multiple buttons for one thing for controller support
+            //additionally, an input class would make this look less dumb.
+            if(Keyboard.GetState().IsKeyDown(Keys.Left)) {
+                camera.Pos += new Vector2(5.0f,0);
+            }
+            if(Keyboard.GetState().IsKeyDown(Keys.Right)) {
+                camera.Pos += new Vector2(-5.0f,0);
+            }
+            if(Keyboard.GetState().IsKeyDown(Keys.Up)) {
+                camera.Pos += new Vector2(0,5.0f);
+            }
+            if(Keyboard.GetState().IsKeyDown(Keys.Down)) {
+                camera.Pos += new Vector2(0,-5.0f);
+            }
 
             base.Update(gameTime);
         }
@@ -84,6 +99,9 @@ namespace Prototype_Golem
                 if (tile.Gid == 0) continue; //air
                 
                 Rectangle destRect = new Rectangle(tile.X*testmap1.TileWidth, tile.Y*testmap1.TileHeight, testmap1.TileWidth, testmap1.TileHeight); //where on the screen the tile is going to be drawn, based on the position of the tile
+
+                destRect.Location += camera.Pos.ToPoint();
+                //TODO: stop here if the location of the tile is outside the screen
 
                 int textureId = tile.Gid - baseTileset.FirstGid; 
 
