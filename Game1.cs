@@ -17,6 +17,8 @@ namespace Prototype_Golem
         TmxMap testmap1;
         Dictionary<string, Texture2D> tilemapTextures = new Dictionary<string, Texture2D>();
 
+        List<Entity> entities = new List<Entity>();
+
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -30,6 +32,8 @@ namespace Prototype_Golem
         {
             // Initialization logic here
             camera = new Camera(-330, -460, 2.5f); //nice starting position for the camera
+
+            entities.Add(new Player(new Vector2(0,0)));
 
             base.Initialize();
         }
@@ -74,6 +78,10 @@ namespace Prototype_Golem
             }
             if(Keyboard.GetState().IsKeyDown(Keys.OemMinus)) {
                 camera.Scalar -= 0.05f;
+            }
+
+            foreach (Entity entity in entities) {
+                entity.Update();
             }
 
             base.Update(gameTime);
