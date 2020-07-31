@@ -23,7 +23,7 @@ namespace Prototype_Golem
             
             PlrInput oldInput = (PlrInput) this.MemberwiseClone(); //copying the old input to use it
             CursorPos = mouse.Position.ToVector2();
-            //add logic for gamepad as the mouse later - i would guess if the joystick is not in a deadzone it should just override mouse
+            //TODO: add logic for gamepad as the mouse later - i would guess if the joystick is not in a deadzone it should just override mouse
 
             //left
             if (keyboard.IsKeyDown(Keys.A) || gamepad.ThumbSticks.Left.X < 0) { //assumiung deadzones are on be default

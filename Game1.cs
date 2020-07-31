@@ -15,7 +15,7 @@ namespace Prototype_Golem
 
         Camera camera = new Camera();
         TmxMap testmap1;
-        Dictionary<string, Texture2D> tilemapTextures = new Dictionary<string, Texture2D>();
+        Dictionary<string, Texture2D> textureDict = new Dictionary<string, Texture2D>();
 
         List<Entity> entities = new List<Entity>();
 
@@ -33,7 +33,7 @@ namespace Prototype_Golem
             // Initialization logic here
             camera = new Camera(-330, -460, 2.5f); //nice starting position for the camera
 
-            entities.Add(new Player(new Vector2(0,0)));
+            entities.Add(new Player(new Vector2(250,464)));
 
             base.Initialize();
         }
@@ -45,8 +45,10 @@ namespace Prototype_Golem
             testmap1 = new TmxMap("Maps/test1.tmx");
 
             Texture2D prototexture = Content.Load<Texture2D>("Images/prototype1"); //this variable will dissapear so the stupid name is fine the actual data is saved in the dictionary
+            Texture2D entitytextures = Content.Load<Texture2D>("Images/entities_map");
 
-            tilemapTextures.Add("prototype1", prototexture);
+            textureDict.Add("prototype1", prototexture);
+            textureDict.Add("entities", entitytextures);
 
         }
 
@@ -101,11 +103,17 @@ namespace Prototype_Golem
             //TODO: make this less stupid
 
             Texture2D tilesetTexture;
+            Texture2D entitiesTexture;
 
-            if (!tilemapTextures.TryGetValue("prototype1", out tilesetTexture)) { //"prototype1" would be a variable after we find what tileset the map uses
-                //runs if loading the image failed
+            if (!textureDict.TryGetValue("prototype1", out tilesetTexture)) { //"prototype1" would be a variable after we find what tileset the map uses
+                //crashes if loading the image failed
                 throw new System.ArgumentException("Loading tilemap texture failed.");
             }
+            if (!textureDict.TryGetValue("entities", out entitiesTexture)) {
+                //crashes if loading the image failed
+                throw new System.ArgumentException("Loading entities texture failed.");
+            }
+
 
             TmxLayer baseLayer = testmap1.Layers["base"];
 
@@ -129,6 +137,16 @@ namespace Prototype_Golem
                 Rectangle sourceRect = new Rectangle(textureX*testmap1.TileWidth, textureY*testmap1.TileHeight, testmap1.TileWidth, testmap1.TileHeight);
                 spriteBatch.Draw(tilesetTexture, destRect, sourceRect, Color.White);
             }
+
+            //TODO: depth in some way so sprites can be drawn in a different order like entities can be underneath some tiles
+            foreach(Entity entity in entities) {
+                if (entity is ITextured) {
+                    ITextured entityT = entity as ITextured;
+                    Rectangle destRect = new Rectangle((int)entity.Pos.X, (int)entity.Pos.Y, entityT.TextRect.Width, entityT.TextRect.Height);
+                    Rectangle sourceRect = entityT.TextRect;
+                    spriteBatch.Draw(entitiesTexture, destRect, sourceRect, Color.White);
+                }
+            } 
 
             spriteBatch.End();
 
