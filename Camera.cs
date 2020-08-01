@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace Prototype_Golem
 {
@@ -19,12 +20,18 @@ namespace Prototype_Golem
         }
 
         public Matrix getMatrix(GraphicsDevice graphicsDevice) {
+            
+            //Console.WriteLine($"Cam: {(int) Pos.X}, {(int) Pos.Y}");
+
             Matrix translationMatrix = Matrix.CreateTranslation( (int) Pos.X, (int) Pos.Y, 0);
             Matrix translationMatrix2 = Matrix.CreateTranslation(graphicsDevice.Viewport.Width*0.5f, graphicsDevice.Viewport.Height*0.5f, 1);
             Matrix scaleMatrix = Matrix.CreateScale(Scalar, Scalar, 1);
 
-            return translationMatrix*scaleMatrix*translationMatrix2; //they have to go in this order for the camera to scale around the center
-            
+            Matrix matrix = translationMatrix*scaleMatrix*translationMatrix2; //they have to go in this order for the camera to scale around the center
+            //M41 and M42 (the two translation numbers) need to be rounded to prevent weird graphical glitch 
+            matrix.M41 = (int)matrix.M41;
+            matrix.M42 = (int)matrix.M42;
+            return matrix;
         }
     }
 }
