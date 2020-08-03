@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace Prototype_Golem
 {
@@ -19,12 +20,13 @@ namespace Prototype_Golem
         }
 
         public Matrix getMatrix(GraphicsDevice graphicsDevice) {
+
             Matrix translationMatrix = Matrix.CreateTranslation( (int) (Pos.X * Game1.TILE_WIDTH), (int) (Pos.Y * Game1.TILE_WIDTH), 0);
             Matrix translationMatrix2 = Matrix.CreateTranslation(graphicsDevice.Viewport.Width*0.5f, graphicsDevice.Viewport.Height*0.5f, 1);
             Matrix scaleMatrix = Matrix.CreateScale(Scalar, Scalar, 1);
 
-            return translationMatrix*scaleMatrix*translationMatrix2; //they have to go in this order for the camera to scale around the center
-            
+            Matrix matrix = translationMatrix*scaleMatrix*translationMatrix2; //they have to go in this order for the camera to scale around the center
+            return matrix;
         }
     }
 }
