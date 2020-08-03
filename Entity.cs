@@ -4,9 +4,11 @@ namespace Prototype_Golem
 {
     public abstract class Entity
     {
-        public static int mapWidth, mapHeight; //map width and height in tiles (not pixels) - for checking what tiles an entity is inside
         public bool Render {get; protected set;}
         public bool Collide {get; protected set;}
+        
+        public CollisionSystem Collision {get; protected set;}
+
         //id for what spritemap to use later on
         public Rectangle TextRect {get; protected set;}
 

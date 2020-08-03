@@ -13,6 +13,11 @@ namespace Prototype_Golem
     public class Game1 : Game
     {
         public static readonly int TILE_WIDTH = 16; //you can change this to make funny graphical things happen and test flexibility
+        
+        //need to be set whenever a new map is loaded
+        public static int MapWidth {get; private set;}
+        public static int MapHeight {get; private set;} //map width and height in tiles (not pixels) - for checking what tiles an entity is inside
+        public static int[] CollisionMap {get; private set;}
 
         private GraphicsDeviceManager _graphics;
         private SpriteBatch spriteBatch;
@@ -22,6 +27,7 @@ namespace Prototype_Golem
         Dictionary<string, Texture2D> textureDict = new Dictionary<string, Texture2D>();
 
         List<Entity> entities = new List<Entity>();
+
 
         public Game1()
         {
@@ -47,6 +53,10 @@ namespace Prototype_Golem
             spriteBatch = new SpriteBatch(GraphicsDevice);
             
             testmap1 = new TmxMap("Maps/test1.tmx");
+            //these need to run every time a map is loaded
+            MapWidth = testmap1.Width;
+            MapHeight = testmap1.Height;
+            CollisionMap = MapToCollisionMap(testmap1);
 
             Texture2D prototexture = Content.Load<Texture2D>("Images/prototype1"); //this variable will dissapear so the stupid name is fine the actual data is saved in the dictionary
             Texture2D entitytextures = Content.Load<Texture2D>("Images/entities_map");
@@ -90,6 +100,8 @@ namespace Prototype_Golem
 
             foreach (Entity entity in entities) {
                 entity.Update();
+                entity.Collision.Pos = entity.Pos;
+                if (entity.Collide) entity.Collision.CollisionUpdate(CollisionMap);
             }
 
             base.Update(gameTime);
@@ -156,6 +168,22 @@ namespace Prototype_Golem
             spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        int[] MapToCollisionMap(TmxMap map) {
+            var collisionLayer = map.Layers["collision"];
+            int firstGid = map.Tilesets["collision"].FirstGid;
+
+            int[] collisionMap = new int[map.Width*map.Height];
+
+            int i = 0;
+            foreach (TmxLayerTile tile in collisionLayer.Tiles) {
+                if (tile.Gid != 0) collisionMap[i] = tile.Gid - firstGid;
+                else collisionMap[i] = 0;
+                i++;
+            }
+
+            return collisionMap;
         }
     }
 }

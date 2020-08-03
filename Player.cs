@@ -17,6 +17,7 @@ namespace Prototype_Golem
             inMech = false;
             input = new PlrInput();
             TextRect = new Rectangle(0, 0, 32, 32);
+            Collision = new AABB(2, 2); //the player is 2x2
         }
         public override void Update() {
             input.Update(Keyboard.GetState(), Mouse.GetState(), GamePad.GetState(PlayerIndex.One));
