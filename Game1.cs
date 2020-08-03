@@ -3,13 +3,17 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 using System.Collections.Generic;
+using System;
 
 using TiledSharp;
 
 namespace Prototype_Golem
 {
+
     public class Game1 : Game
     {
+        public static readonly int TILE_WIDTH = 16; //you can change this to make funny graphical things happen and test flexibility
+
         private GraphicsDeviceManager _graphics;
         private SpriteBatch spriteBatch;
 
@@ -31,9 +35,9 @@ namespace Prototype_Golem
         protected override void Initialize()
         {
             // Initialization logic here
-            camera = new Camera(-330, -460, 2.5f); //nice starting position for the camera
+            camera = new Camera(-16, -32, 2.5f); //nice starting position for the camera
 
-            entities.Add(new Player(new Vector2(250,464)));
+            entities.Add(new Player(new Vector2(16,32)));
 
             base.Initialize();
         }
@@ -57,22 +61,24 @@ namespace Prototype_Golem
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            Console.WriteLine($"FPS: {1 / gameTime.ElapsedGameTime.TotalSeconds}");
+
             // Update logic here
 
             //sort of todo: bounds on the zoom and maybe change movement speed. however this will be pointless in the final product where camera zoom and position is determined from the players state
             //TODO: input class to at the very least add multiple buttons for one thing for controller support
             //additionally, an input class would make this look less dumb.
             if(Keyboard.GetState().IsKeyDown(Keys.Left)) {
-                camera.Pos += new Vector2(5.0f,0);
+                camera.Pos += new Vector2(.5f,0);
             }
             if(Keyboard.GetState().IsKeyDown(Keys.Right)) {
-                camera.Pos += new Vector2(-5.0f,0);
+                camera.Pos += new Vector2(-.5f,0);
             }
             if(Keyboard.GetState().IsKeyDown(Keys.Up)) {
-                camera.Pos += new Vector2(0,5.0f);
+                camera.Pos += new Vector2(0,.5f);
             }
             if(Keyboard.GetState().IsKeyDown(Keys.Down)) {
-                camera.Pos += new Vector2(0,-5.0f);
+                camera.Pos += new Vector2(0,-.5f);
             }
 
             if(Keyboard.GetState().IsKeyDown(Keys.OemPlus)) {
@@ -123,7 +129,7 @@ namespace Prototype_Golem
             foreach(TmxLayerTile tile in tiles) {
                 if (tile.Gid == 0) continue; //air
                 
-                Rectangle destRect = new Rectangle(tile.X*testmap1.TileWidth, tile.Y*testmap1.TileHeight, testmap1.TileWidth, testmap1.TileHeight); //where on the screen the tile is going to be drawn, based on the position of the tile
+                Rectangle destRect = new Rectangle(tile.X*TILE_WIDTH, tile.Y*TILE_WIDTH, TILE_WIDTH, TILE_WIDTH); //where on the screen the tile is going to be drawn, based on the position of the tile
 
                 //destRect.Location += camera.Pos.ToPoint(); this was how i moved the tile but i just move the entire spritebatch now
                 //may be worth putting this back if I want to check if i need to cull the tiles and skip all this math
@@ -134,16 +140,15 @@ namespace Prototype_Golem
                     int textureX = textureId % columns;
                     int textureY = textureId / columns;
 
-                Rectangle sourceRect = new Rectangle(textureX*testmap1.TileWidth, textureY*testmap1.TileHeight, testmap1.TileWidth, testmap1.TileHeight);
+                Rectangle sourceRect = new Rectangle(textureX*TILE_WIDTH, textureY*TILE_WIDTH, TILE_WIDTH, TILE_WIDTH);
                 spriteBatch.Draw(tilesetTexture, destRect, sourceRect, Color.White);
             }
 
             //TODO: depth in some way so sprites can be drawn in a different order like entities can be underneath some tiles
             foreach(Entity entity in entities) {
-                if (entity is ITextured) {
-                    ITextured entityT = entity as ITextured;
-                    Rectangle destRect = new Rectangle((int)entity.Pos.X, (int)entity.Pos.Y, entityT.TextRect.Width, entityT.TextRect.Height);
-                    Rectangle sourceRect = entityT.TextRect;
+                if (entity.Render) {
+                    Rectangle destRect = new Rectangle((int)(entity.Pos.X*TILE_WIDTH), (int)(entity.Pos.Y*TILE_WIDTH), entity.TextRect.Width, entity.TextRect.Height);
+                    Rectangle sourceRect = entity.TextRect;
                     spriteBatch.Draw(entitiesTexture, destRect, sourceRect, Color.White);
                 }
             } 

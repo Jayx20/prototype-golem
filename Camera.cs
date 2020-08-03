@@ -19,7 +19,7 @@ namespace Prototype_Golem
         }
 
         public Matrix getMatrix(GraphicsDevice graphicsDevice) {
-            Matrix translationMatrix = Matrix.CreateTranslation( (int) Pos.X, (int) Pos.Y, 0);
+            Matrix translationMatrix = Matrix.CreateTranslation( (int) (Pos.X * Game1.TILE_WIDTH), (int) (Pos.Y * Game1.TILE_WIDTH), 0);
             Matrix translationMatrix2 = Matrix.CreateTranslation(graphicsDevice.Viewport.Width*0.5f, graphicsDevice.Viewport.Height*0.5f, 1);
             Matrix scaleMatrix = Matrix.CreateScale(Scalar, Scalar, 1);
 
