@@ -104,11 +104,15 @@ namespace Prototype_Golem
                 entity.Move();
                 if (entity.Collide) {
                     entity.Collision.Pos = entity.Pos;
-                    entity.Collision.CollisionUpdate(CollisionMap);
+                    entity.Collision.Speed = entity.Speed;
+                    entity.Collision.CollisionUpdate(CollisionMap); //add pos and speed as refs or out or something
                     entity.Pos = entity.Collision.Pos;
+                    entity.Speed = entity.Collision.Speed;
                 }
+                
             }
 
+            Console.WriteLine($"Player Pos: {entities[0].Pos.X}, {entities[0].Pos.Y}");
             base.Update(gameTime);
         }
 

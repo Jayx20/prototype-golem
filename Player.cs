@@ -22,14 +22,19 @@ namespace Prototype_Golem
         public override void Update() {
             input.Update(Keyboard.GetState(), Mouse.GetState(), GamePad.GetState(PlayerIndex.One));
 
-            Speed = new Vector2();
-            if(input.Left.Held) {Speed += new Vector2(-.2f, 0);}
-            if(input.Right.Held) {Speed += new Vector2(.2f, 0);}
-            if(input.Up.Held) {Speed += new Vector2(0, -.2f);} //up is negative and down is positive in this idk if i should render backwards or just leave it
-            if(input.Down.Held) {Speed += new Vector2(0, .2f);}
+            //experimental gravity - not sure if i will have an acceleration variable
+            Vector2 gravity = new Vector2(0, 0.05f);
 
-            Console.WriteLine($"pos = {Pos}");
-            
+            Speed = new Vector2(0, Speed.Y); //reset X speed might change later
+            if(input.Left.Held)  Speed += new Vector2(-.2f, 0);
+            if(input.Right.Held) Speed += new Vector2(.2f, 0);
+            if(input.Up.Held)    gravity*=.5f;
+            if(input.Up.Pressed) Speed = new Vector2(Speed.X, -.5f);
+            //if(input.Down.Held) {Speed += new Vector2(0, .2f);}
+
+            Speed += gravity;
+            //Console.WriteLine($"pos = {Pos}");
+        
         }
 
     }

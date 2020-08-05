@@ -47,20 +47,24 @@ namespace Prototype_Golem
                             Console.WriteLine("Bruh!");
                             if(oldBottom < tileTop && ((tileId&(int)CollisionDirections.TOP)!=0)) { //collided from tiles top
                                 //throw new Exception("poop");
-                                Console.WriteLine("collided from tiles top!");
-                                Pos = new Vector2(Pos.X, tileTop-height-offsetDown-0.01f);
+                                //Console.WriteLine("collided from tiles top!");
+                                Pos = new Vector2(Pos.X, tileTop-height-0.001f);
+                                Speed = new Vector2(Speed.X, 0);
                             }
                             else if (oldTop > tileBottom && ((tileId&(int)CollisionDirections.BOTTOM)!=0)) { //collided from tiles bottom
                                 Console.WriteLine("collided from tiles bottom!");
-                                Pos = new Vector2(Pos.X, tileBottom+offsetDown+0.01f);
+                                Pos = new Vector2(Pos.X, tileBottom+0.001f);
+                                Speed = new Vector2(Speed.X, 0);
                             }
                             else if (oldRight < tileLeft && ((tileId&(int)CollisionDirections.LEFT)!=0)) { //collided from tiles left
                                 Console.WriteLine("collided from tiles left!");
-                                Pos = new Vector2(tileLeft-width-offsetRight-0.01f, Pos.Y);
+                                Pos = new Vector2(tileLeft-width-0.001f, Pos.Y);
+                                Speed = new Vector2(0, Speed.Y);
                             }
                             else if (oldLeft > tileRight && ((tileId&(int)CollisionDirections.RIGHT)!=0)) {//collided from tiles right
                                 Console.WriteLine("collided from tiles right!");
-                                Pos = new Vector2(tileRight+offsetRight+0.01f, Pos.Y);
+                                Pos = new Vector2(tileRight+0.001f, Pos.Y);
+                                Speed = new Vector2(0, Speed.Y);
                             }
                         }
                         //TODO: add platforms.
