@@ -41,7 +41,7 @@ namespace Prototype_Golem
         protected override void Initialize()
         {
             // Initialization logic here
-            camera = new Camera(-16, -32, 2.5f); //nice starting position for the camera
+            camera = new Camera(-19.5f, -25, 2.15f); //nice starting position for the camera
 
             entities.Add(new Player(new Vector2(16,32)));
 
@@ -113,6 +113,8 @@ namespace Prototype_Golem
             }
 
             Console.WriteLine($"Player Pos: {entities[0].Pos.X}, {entities[0].Pos.Y}");
+            Console.WriteLine($"Camera Pos: {camera.Pos.X}, {camera.Pos.Y}, Scale: {camera.Scalar}");
+            
             base.Update(gameTime);
         }
 
