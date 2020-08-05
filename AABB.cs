@@ -5,6 +5,7 @@ namespace Prototype_Golem
 {
     public class AABB : CollisionSystem
     {
+        //right now while i am using floats for coordinates, bounding boxes should all be at least .001 smaller than a full block
         //0, 0 being the top left, every 1 is a tile width. So a 1x1 thing would just be 0, 0, 1, 1
         float offsetDown; float offsetRight; //usually going to be 0, used if the bounding box is inside the entity
         float width;
@@ -24,12 +25,12 @@ namespace Prototype_Golem
 
         protected override void CollideTiles()
         {
-            float selfLeft = offsetRight+Pos.X;
-            float selfTop = offsetDown+Pos.Y;
-            float selfRight = width+Pos.X;
-            float selfBottom = width+Pos.Y;
             for(int i = 0; i < Game1.MapWidth*Game1.MapHeight; i++) {
                 if (CollisionMask[i]) {
+                    float selfLeft = offsetRight+Pos.X; float oldLeft = offsetRight+OldPos.X;
+                    float selfTop = offsetDown+Pos.Y; float oldTop = offsetDown+OldPos.Y;
+                    float selfRight = width+Pos.X; float oldRight = width+OldPos.X;
+                    float selfBottom = height+Pos.Y; float oldBottom = height+OldPos.Y;
                     //for every tile the entity intersects
                     int tileId = Game1.CollisionMap[i];
                     if(tileId == 0) continue; //air
@@ -42,10 +43,28 @@ namespace Prototype_Golem
                         bool touchLeft = (selfRight > tileLeft);
                         bool touchBottom = (selfTop < tileBottom);
                         bool touchRight = (selfLeft < tileRight);
-                        if (touchTop && touchLeft && touchBottom && touchRight) {
+                        if (touchTop && touchLeft && touchBottom && touchRight) { //touching at all
                             Console.WriteLine("Bruh!");
+                            if(oldBottom < tileTop && ((tileId&(int)CollisionDirections.TOP)!=0)) { //collided from tiles top
+                                //throw new Exception("poop");
+                                Console.WriteLine("collided from tiles top!");
+                                Pos = new Vector2(Pos.X, tileTop-height-offsetDown-0.01f);
+                            }
+                            else if (oldTop > tileBottom && ((tileId&(int)CollisionDirections.BOTTOM)!=0)) { //collided from tiles bottom
+                                Console.WriteLine("collided from tiles bottom!");
+                                Pos = new Vector2(Pos.X, tileBottom+offsetDown+0.01f);
+                            }
+                            else if (oldRight < tileLeft && ((tileId&(int)CollisionDirections.LEFT)!=0)) { //collided from tiles left
+                                Console.WriteLine("collided from tiles left!");
+                                Pos = new Vector2(tileLeft-width-offsetRight-0.01f, Pos.Y);
+                            }
+                            else if (oldLeft > tileRight && ((tileId&(int)CollisionDirections.RIGHT)!=0)) {//collided from tiles right
+                                Console.WriteLine("collided from tiles right!");
+                                Pos = new Vector2(tileRight+offsetRight+0.01f, Pos.Y);
+                            }
                         }
-                        //TODO: add platforms. I am thinking you could take into account the players location during the previous frame but idk.
+                        //TODO: add platforms.
+                        //possible todo, may need to address tunneling issues if they occur
                     }
                     else {
                         throw new NotImplementedException();
@@ -63,7 +82,7 @@ namespace Prototype_Golem
 
             for(int x = topLeftX; x <= bottomRightX; x++) {
                 for (int y = topLeftY; y <= bottomRightY; y++) {
-                    if (y*Game1.MapWidth+x > Game1.MapWidth*Game1.MapHeight || y*Game1.MapWidth+x < 0) continue;
+                    if (y*Game1.MapWidth+x >= Game1.MapWidth*Game1.MapHeight || y*Game1.MapWidth+x < 0) continue;
                     CollisionMask[y*Game1.MapWidth+x] = true;
                 }
             }

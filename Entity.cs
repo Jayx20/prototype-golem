@@ -12,8 +12,12 @@ namespace Prototype_Golem
         //id for what spritemap to use later on
         public Rectangle TextRect {get; protected set;}
 
-        public Vector2 Pos {get; protected set;} //idk if we will need a public setter later
+        public Vector2 Pos {get; set;}
+        public Vector2 Speed {get; set;}
 
         public abstract void Update(); //very important
+        public void Move() {
+            Pos += Speed;
+        }
     }
 }

@@ -71,7 +71,7 @@ namespace Prototype_Golem
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            Console.WriteLine($"FPS: {1 / gameTime.ElapsedGameTime.TotalSeconds}");
+            //Console.WriteLine($"FPS: {1 / gameTime.ElapsedGameTime.TotalSeconds}");
 
             // Update logic here
 
@@ -99,9 +99,14 @@ namespace Prototype_Golem
             }
 
             foreach (Entity entity in entities) {
+                if (entity.Collide) entity.Collision.OldPos = entity.Pos;
                 entity.Update();
-                entity.Collision.Pos = entity.Pos;
-                if (entity.Collide) entity.Collision.CollisionUpdate(CollisionMap);
+                entity.Move();
+                if (entity.Collide) {
+                    entity.Collision.Pos = entity.Pos;
+                    entity.Collision.CollisionUpdate(CollisionMap);
+                    entity.Pos = entity.Collision.Pos;
+                }
             }
 
             base.Update(gameTime);

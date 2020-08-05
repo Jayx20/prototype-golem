@@ -8,6 +8,7 @@ namespace Prototype_Golem
     {
         public bool[] CollisionMask {get; protected set;}
 
+        public Vector2 OldPos {get; set;}
         public Vector2 Pos {get; set;}
         public Queue<Entity> collidedEntities;
         public void CollisionUpdate(int[] collisionMap) {
