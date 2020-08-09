@@ -28,4 +28,9 @@
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.0.1375-develop" />
     <PackageReference Include="TiledSharp" Version="1.0.1" />
   </ItemGroup>
+  <ItemGroup> 
+    <Content Include="Maps\**"> 
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory> 
+    </Content> 
+  </ItemGroup>
 </Project>
