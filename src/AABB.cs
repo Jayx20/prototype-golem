@@ -44,27 +44,25 @@ namespace Prototype_Golem
                         bool touchBottom = (selfTop < tileBottom);
                         bool touchRight = (selfLeft < tileRight);
                         if (touchTop && touchLeft && touchBottom && touchRight) { //touching at all
-                            Console.WriteLine("Bruh!");
                             if(oldBottom < tileTop && ((tileId&(int)CollisionDirections.TOP)!=0)) { //collided from tiles top
-                                //throw new Exception("poop");
-                                //Console.WriteLine("collided from tiles top!");
                                 Pos = new Vector2(Pos.X, tileTop-height-0.001f);
                                 Speed = new Vector2(Speed.X, 0);
+                                TouchedSides |= (int)CollisionDirections.TOP;
                             }
                             else if (oldTop > tileBottom && ((tileId&(int)CollisionDirections.BOTTOM)!=0)) { //collided from tiles bottom
-                                Console.WriteLine("collided from tiles bottom!");
                                 Pos = new Vector2(Pos.X, tileBottom+0.001f);
                                 Speed = new Vector2(Speed.X, 0);
+                                TouchedSides |= (int)CollisionDirections.BOTTOM;
                             }
                             else if (oldRight < tileLeft && ((tileId&(int)CollisionDirections.LEFT)!=0)) { //collided from tiles left
-                                Console.WriteLine("collided from tiles left!");
                                 Pos = new Vector2(tileLeft-width-0.001f, Pos.Y);
                                 Speed = new Vector2(0, Speed.Y);
+                                TouchedSides |= (int)CollisionDirections.LEFT;
                             }
                             else if (oldLeft > tileRight && ((tileId&(int)CollisionDirections.RIGHT)!=0)) {//collided from tiles right
-                                Console.WriteLine("collided from tiles right!");
                                 Pos = new Vector2(tileRight+0.001f, Pos.Y);
                                 Speed = new Vector2(0, Speed.Y);
+                                TouchedSides |= (int)CollisionDirections.RIGHT;
                             }
                         }
                         //TODO: add platforms.

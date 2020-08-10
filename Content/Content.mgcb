@@ -37,3 +37,15 @@
 /processorParam:TextureFormat=Color
 /build:Images/prototype1.png
 
+#begin Sounds/thump.ogg
+/importer:OggImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/thump.ogg
+
+#begin Sounds/woosh.ogg
+/importer:OggImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/woosh.ogg
+

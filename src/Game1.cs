@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 
 using System.Collections.Generic;
 using System;
@@ -18,6 +19,7 @@ namespace Prototype_Golem
         public static int MapWidth {get; private set;}
         public static int MapHeight {get; private set;} //map width and height in tiles (not pixels) - for checking what tiles an entity is inside
         public static int[] CollisionMap {get; private set;}
+        public static List<SoundEffect> SoundEffects {get; private set;}
 
         private GraphicsDeviceManager _graphics;
         private SpriteBatch spriteBatch;
@@ -52,17 +54,19 @@ namespace Prototype_Golem
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
             
-            testmap1 = new TmxMap("Maps/test1.tmx");
+            testmap1 = new TmxMap("Maps/test2.tmx");
             //these need to run every time a map is loaded
             MapWidth = testmap1.Width;
             MapHeight = testmap1.Height;
             CollisionMap = MapToCollisionMap(testmap1);
+            SoundEffects = new List<SoundEffect>();
 
-            Texture2D prototexture = Content.Load<Texture2D>("Images/prototype1"); //this variable will dissapear so the stupid name is fine the actual data is saved in the dictionary
-            Texture2D entitytextures = Content.Load<Texture2D>("Images/entities_map");
+            textureDict.Add("prototype1", Content.Load<Texture2D>("Images/prototype1"));
+            textureDict.Add("entities", Content.Load<Texture2D>("Images/entities_map"));
 
-            textureDict.Add("prototype1", prototexture);
-            textureDict.Add("entities", entitytextures);
+            SoundEffects.Insert((int)SFX.JUMP, Content.Load<SoundEffect>("Sounds/woosh"));
+            SoundEffects.Insert((int)SFX.THUMP, Content.Load<SoundEffect>("Sounds/thump"));
+            
 
         }
 

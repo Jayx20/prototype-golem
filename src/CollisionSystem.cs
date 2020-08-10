@@ -8,11 +8,13 @@ namespace Prototype_Golem
     {
         public bool[] CollisionMask {get; protected set;}
 
+        public int TouchedSides {get; protected set;} //tells the parent entity what sides of other objects it has touched for response
         public Vector2 Speed {get; set;}
         public Vector2 OldPos {get; set;}
         public Vector2 Pos {get; set;}
         public Queue<Entity> collidedEntities;
         public void CollisionUpdate(int[] collisionMap) {
+            TouchedSides=0;
             CollisionMask = new bool[Game1.MapWidth*Game1.MapHeight];
             UpdateCollisionMask();
             CollideTiles();
@@ -24,7 +26,7 @@ namespace Prototype_Golem
         protected abstract void CollideEntities();
         //stuff for reacting
     
-        protected enum CollisionDirections {
+        public enum CollisionDirections {
             NONE = 0,
             TOP = 1,
             LEFT = 2,
