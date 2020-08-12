@@ -14,21 +14,19 @@ namespace Prototype_Golem
     public class Game1 : Game
     {
         public static readonly int TILE_WIDTH = 16; //you can change this to make funny graphical things happen and test flexibility
-        
-        //need to be set whenever a new map is loaded
-        public static int MapWidth {get; private set;}
-        public static int MapHeight {get; private set;} //map width and height in tiles (not pixels) - for checking what tiles an entity is inside
-        public static int[] CollisionMap {get; private set;}
         public static List<SoundEffect> SoundEffects {get; private set;}
 
         private GraphicsDeviceManager _graphics;
         private SpriteBatch spriteBatch;
 
         Camera camera = new Camera();
-        TmxMap testmap1;
+
         Dictionary<string, Texture2D> textureDict = new Dictionary<string, Texture2D>();
 
-        List<Entity> entities = new List<Entity>();
+        List<Entity> gameEntities = new List<Entity>(); 
+        //does not include entities bound to the map
+
+        LevelHandler levelHandler = new LevelHandler();
 
 
         public Game1()
@@ -45,7 +43,7 @@ namespace Prototype_Golem
             // Initialization logic here
             camera = new Camera(-19.5f, -25, 2.15f); //nice starting position for the camera
 
-            entities.Add(new Player(new Vector2(16,32)));
+            gameEntities.Add(new Player(new Vector2(24,30)));
 
             base.Initialize();
         }
@@ -54,11 +52,8 @@ namespace Prototype_Golem
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
             
-            testmap1 = new TmxMap("Maps/test2.tmx");
+            levelHandler.Load("test2");
             //these need to run every time a map is loaded
-            MapWidth = testmap1.Width;
-            MapHeight = testmap1.Height;
-            CollisionMap = MapToCollisionMap(testmap1);
             SoundEffects = new List<SoundEffect>();
 
             textureDict.Add("prototype1", Content.Load<Texture2D>("Images/prototype1"));
@@ -72,6 +67,14 @@ namespace Prototype_Golem
 
         protected override void Update(GameTime gameTime)
         {
+            if(Keyboard.GetState().IsKeyDown(Keys.J)) { levelHandler.Load("test1"); gameEntities[0].Pos = new Vector2(16, 31);}
+            if(Keyboard.GetState().IsKeyDown(Keys.K)) { levelHandler.Load("test2"); gameEntities[0].Pos = new Vector2(24, 30);}
+
+            Level level = levelHandler.GetLevel();
+            List<Entity> entities = new List<Entity>();
+            entities.AddRange(gameEntities);
+            if (level.LevelEntities.Count > 0) entities.AddRange(level.LevelEntities);
+
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
@@ -109,7 +112,7 @@ namespace Prototype_Golem
                 if (entity.Collide) {
                     entity.Collision.Pos = entity.Pos;
                     entity.Collision.Speed = entity.Speed;
-                    entity.Collision.CollisionUpdate(CollisionMap); //add pos and speed as refs or out or something
+                    entity.Collision.CollisionUpdate(level.CollisionMap); //add pos and speed as refs or out or something
                     entity.Pos = entity.Collision.Pos;
                     entity.Speed = entity.Collision.Speed;
                 }
@@ -124,16 +127,16 @@ namespace Prototype_Golem
 
         protected override void Draw(GameTime gameTime)
         {
+            Level level = levelHandler.GetLevel();
+            List<Entity> entities = new List<Entity>();
+            entities.AddRange(gameEntities);
+            if (level.LevelEntities.Count > 0) entities.AddRange(level.LevelEntities);
+            
             GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            TmxTileset baseTileset = testmap1.Tilesets["prototype1"];
-            int columns = baseTileset.Columns ?? -1;
-            if (columns == -1) {
-                throw new System.ArgumentException("HOW");
-            } 
 
             //i should probably make a class or something that combines the TmxTileset and the actual Texture2D or just find a way to load the texture from the tileset instead of from monogames content manager
             //TODO: make this less stupid
+            //TODO: see above im just putting it again so its a higher priority
 
             Texture2D tilesetTexture;
             Texture2D entitiesTexture;
@@ -148,7 +151,7 @@ namespace Prototype_Golem
             }
 
 
-            TmxLayer baseLayer = testmap1.Layers["base"];
+            TmxLayer baseLayer = level.GetLayers()[0];
 
             spriteBatch.Begin(transformMatrix: camera.getMatrix(_graphics.GraphicsDevice),samplerState: SamplerState.PointClamp); //PointClamp makes scaling tiles look quite nice
 
@@ -161,11 +164,11 @@ namespace Prototype_Golem
                 //destRect.Location += camera.Pos.ToPoint(); this was how i moved the tile but i just move the entire spritebatch now
                 //may be worth putting this back if I want to check if i need to cull the tiles and skip all this math
 
-                int textureId = tile.Gid - baseTileset.FirstGid; 
+                int textureId = tile.Gid - level.BaseTileset.FirstGid; 
 
                 //funny math that has to do with 2d arrays and stuff
-                    int textureX = textureId % columns;
-                    int textureY = textureId / columns;
+                    int textureX = textureId % level.Columns;
+                    int textureY = textureId / level.Columns;
 
                 Rectangle sourceRect = new Rectangle(textureX*TILE_WIDTH, textureY*TILE_WIDTH, TILE_WIDTH, TILE_WIDTH);
                 spriteBatch.Draw(tilesetTexture, destRect, sourceRect, Color.White);
@@ -185,20 +188,6 @@ namespace Prototype_Golem
             base.Draw(gameTime);
         }
 
-        int[] MapToCollisionMap(TmxMap map) {
-            var collisionLayer = map.Layers["collision"];
-            int firstGid = map.Tilesets["collision"].FirstGid;
 
-            int[] collisionMap = new int[map.Width*map.Height];
-
-            int i = 0;
-            foreach (TmxLayerTile tile in collisionLayer.Tiles) {
-                if (tile.Gid != 0) collisionMap[i] = tile.Gid - firstGid;
-                else collisionMap[i] = 0;
-                i++;
-            }
-
-            return collisionMap;
-        }
     }
 }

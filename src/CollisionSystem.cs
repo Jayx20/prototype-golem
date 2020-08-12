@@ -15,7 +15,7 @@ namespace Prototype_Golem
         public Queue<Entity> collidedEntities;
         public void CollisionUpdate(int[] collisionMap) {
             TouchedSides=0;
-            CollisionMask = new bool[Game1.MapWidth*Game1.MapHeight];
+            CollisionMask = new bool[LevelHandler.MapWidth*LevelHandler.MapHeight];
             UpdateCollisionMask();
             CollideTiles();
             CollideEntities();

@@ -25,17 +25,17 @@ namespace Prototype_Golem
 
         protected override void CollideTiles()
         {
-            for(int i = 0; i < Game1.MapWidth*Game1.MapHeight; i++) {
+            for(int i = 0; i < LevelHandler.MapWidth*LevelHandler.MapHeight; i++) {
                 if (CollisionMask[i]) {
                     float selfLeft = offsetRight+Pos.X; float oldLeft = offsetRight+OldPos.X;
                     float selfTop = offsetDown+Pos.Y; float oldTop = offsetDown+OldPos.Y;
                     float selfRight = width+Pos.X; float oldRight = width+OldPos.X;
                     float selfBottom = height+Pos.Y; float oldBottom = height+OldPos.Y;
                     //for every tile the entity intersects
-                    int tileId = Game1.CollisionMap[i];
+                    int tileId = LevelHandler.CollisionMap[i];
                     if(tileId == 0) continue; //air
-                    float tileLeft = i % Game1.MapWidth;
-                    float tileTop = i / Game1.MapWidth;
+                    float tileLeft = i % LevelHandler.MapWidth;
+                    float tileTop = i / LevelHandler.MapWidth;
                     float tileRight = tileLeft + 1;
                     float tileBottom = tileTop + 1;
                     if(tileId < 16) { //standard tile with no slope or anything
@@ -84,8 +84,8 @@ namespace Prototype_Golem
 
             for(int x = topLeftX; x <= bottomRightX; x++) {
                 for (int y = topLeftY; y <= bottomRightY; y++) {
-                    if (y*Game1.MapWidth+x >= Game1.MapWidth*Game1.MapHeight || y*Game1.MapWidth+x < 0) continue;
-                    CollisionMask[y*Game1.MapWidth+x] = true;
+                    if (y*LevelHandler.MapWidth+x >= LevelHandler.MapWidth*LevelHandler.MapHeight || y*LevelHandler.MapWidth+x < 0) continue;
+                    CollisionMask[y*LevelHandler.MapWidth+x] = true;
                 }
             }
         }
