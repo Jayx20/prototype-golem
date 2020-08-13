@@ -43,5 +43,14 @@ namespace Prototype_Golem
             X = X+vec.X;
             Y = Y+vec.Y;
         }
+
+        public bool Intersects(RectangleF otherRectangle) {
+            bool touchTop = (this.Bottom > otherRectangle.Top);
+            bool touchLeft = (this.Right > otherRectangle.Left);
+            bool touchBottom = (this.Top < otherRectangle.Bottom);
+            bool touchRight = (this.Left < otherRectangle.Right);
+            if (touchTop && touchLeft && touchBottom && touchRight) return true;
+            else return false;
+        }
     }
 }

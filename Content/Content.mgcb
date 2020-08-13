@@ -49,6 +49,12 @@
 /processorParam:TextureFormat=Color
 /build:Images/prototype1.png
 
+#begin Sounds/pickup.ogg
+/importer:OggImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/pickup.ogg
+
 #begin Sounds/thump.ogg
 /importer:OggImporter
 /processor:SoundEffectProcessor

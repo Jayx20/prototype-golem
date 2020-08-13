@@ -7,6 +7,8 @@ namespace Prototype_Golem
     {
         public bool Render {get; protected set;}
         public bool Collide {get; protected set;}
+        public bool Delete {get; protected set;} //for when an entity wants to delete itself
+        
         public SpriteEffects Effects {get; protected set;} = SpriteEffects.None;
         public CollisionSystem Collision {get; protected set;}
 
@@ -19,6 +21,11 @@ namespace Prototype_Golem
         public abstract void Update(); //very important
         public void Move() {
             Pos += Speed;
+        }
+
+        //overwrite for behaviors when colliding with certain entites
+        public virtual void CollideWith(Entity entity) {
+            //do nothing when it collides with anything
         }
     }
 }

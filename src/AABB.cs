@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System;
 
@@ -10,6 +11,9 @@ namespace Prototype_Golem
         float offsetDown; float offsetRight; //usually going to be 0, used if the bounding box is inside the entity
         float width;
         float height;
+
+        public RectangleF SelfBounds {get {return new RectangleF(Pos.X+offsetRight, Pos.Y+offsetDown, width, height);}}
+        public RectangleF OldBounds {get {return new RectangleF(OldPos.X+offsetRight, OldPos.Y+offsetDown, width, height);}}
 
         public AABB(float width, float height, float offsetDown = 0, float offsetRight = 0) {
             this.width = width;
@@ -25,57 +29,77 @@ namespace Prototype_Golem
             this.offsetDown = (float)topLeft.Y/Game1.TILE_WIDTH;            
         }
 
-        protected override void CollideEntities()
+        protected override void CollideDetectEntities(List<Entity> entities)
         {
-            
+            foreach (Entity entity in entities) {
+                if (entity.Collision == this) continue;
+                for (int i = 0; i<CollisionMask.Length; i++) {
+                    if (CollisionMask[i] && entity.Collision.CollisionMask[i]) {
+                        //self and entity do have some tiles in common
+                        //colliding against another rectangle
+                        if(entity.Collision is AABB) {
+                            if(SelfBounds.Intersects(((AABB)entity.Collision).SelfBounds)) {
+                                CollidedEntities.Add(entity);
+                                break;
+                            }
+                        } else
+                            throw new NotImplementedException(); //nothing else than AABB exists atm.
+                        
+                    }
+                }
+            }
+        }
+
+        protected override void CollideResolveEntities() {
+            foreach (Entity entity in CollidedEntities) {
+                if(entity.Collision is AABB) {
+                    if(entity.Collision.Clip) {
+                        //resolve the collision
+                        throw new NotImplementedException(); //no clipping entities besides player yet.
+
+                    } //if the other entity doesn't clip you dont have to resolve anything
+                } else
+                    throw new NotImplementedException();
+            }
         }
 
         protected override void CollideTiles()
         {
             for(int i = 0; i < LevelHandler.MapWidth*LevelHandler.MapHeight; i++) {
                 if (CollisionMask[i]) {
-                    float selfLeft = offsetRight+Pos.X; float oldLeft = offsetRight+OldPos.X;
-                    float selfTop = offsetDown+Pos.Y; float oldTop = offsetDown+OldPos.Y;
-                    float selfRight = width+offsetRight+Pos.X; float oldRight = width+offsetRight+OldPos.X;
-                    float selfBottom = height+offsetDown+Pos.Y; float oldBottom = height+offsetDown+OldPos.Y;
+
                     //for every tile the entity intersects
                     int tileId = LevelHandler.CollisionMap[i];
                     if(tileId == 0) continue; //air
-                    float tileLeft = i % LevelHandler.MapWidth;
-                    float tileTop = i / LevelHandler.MapWidth;
-                    float tileRight = tileLeft + 1;
-                    float tileBottom = tileTop + 1;
+                    RectangleF tileBounds = new RectangleF(i % LevelHandler.MapWidth, i / LevelHandler.MapWidth, 1, 1);
+
                     if(tileId < 16) { //standard tile with no slope or anything
-                        bool touchTop = (selfBottom > tileTop);
-                        bool touchLeft = (selfRight > tileLeft);
-                        bool touchBottom = (selfTop < tileBottom);
-                        bool touchRight = (selfLeft < tileRight);
-                        if (touchTop && touchLeft && touchBottom && touchRight) { //touching at all
-                            if(oldBottom < tileTop && ((tileId&(int)CollisionDirections.TOP)!=0)) { //collided from tiles top
-                                Pos = new Vector2(Pos.X, tileTop-height-offsetDown-Constants.COLLISION_PUSH_DISTANCE);
+                        if (SelfBounds.Intersects(tileBounds)) {
+                            if(OldBounds.Bottom < tileBounds.Top && ((tileId&(int)CollisionDirections.TOP)!=0)) { //collided from tiles top
+                                Pos = new Vector2(Pos.X, tileBounds.Top-height-offsetDown-Constants.COLLISION_PUSH_DISTANCE);
                                 Speed = new Vector2(Speed.X, 0);
                                 TouchedSides |= (int)CollisionDirections.TOP;
                             }
-                            else if (oldTop > tileBottom && ((tileId&(int)CollisionDirections.BOTTOM)!=0)) { //collided from tiles bottom
-                                Pos = new Vector2(Pos.X, tileBottom-offsetDown+Constants.COLLISION_PUSH_DISTANCE);
+                            else if (OldBounds.Top > tileBounds.Bottom && ((tileId&(int)CollisionDirections.BOTTOM)!=0)) { //collided from tiles bottom
+                                Pos = new Vector2(Pos.X, tileBounds.Bottom-offsetDown+Constants.COLLISION_PUSH_DISTANCE);
                                 Speed = new Vector2(Speed.X, 0);
                                 TouchedSides |= (int)CollisionDirections.BOTTOM;
                             }
-                            else if (oldRight < tileLeft && ((tileId&(int)CollisionDirections.LEFT)!=0)) { //collided from tiles left
-                                Pos = new Vector2(tileLeft-width-offsetRight-Constants.COLLISION_PUSH_DISTANCE, Pos.Y);
+                            else if (OldBounds.Right < tileBounds.Left && ((tileId&(int)CollisionDirections.LEFT)!=0)) { //collided from tiles left
+                                Pos = new Vector2(tileBounds.Left-width-offsetRight-Constants.COLLISION_PUSH_DISTANCE, Pos.Y);
                                 Speed = new Vector2(0, Speed.Y);
                                 TouchedSides |= (int)CollisionDirections.LEFT;
                             }
-                            else if (oldLeft > tileRight && ((tileId&(int)CollisionDirections.RIGHT)!=0)) {//collided from tiles right
-                                Pos = new Vector2(tileRight-offsetRight+Constants.COLLISION_PUSH_DISTANCE, Pos.Y);
+                            else if (OldBounds.Left > tileBounds.Right && ((tileId&(int)CollisionDirections.RIGHT)!=0)) {//collided from tiles right
+                                Pos = new Vector2(tileBounds.Right-offsetRight+Constants.COLLISION_PUSH_DISTANCE, Pos.Y);
                                 Speed = new Vector2(0, Speed.Y);
                                 TouchedSides |= (int)CollisionDirections.RIGHT;
                             }
                         }
-                        //TODO: add platforms.
                         //possible todo, may need to address tunneling issues if they occur
                     }
                     else {
+                        //extra possibilities, platforms you can fall through, and spikes
                         throw new NotImplementedException();
                     }
                 }

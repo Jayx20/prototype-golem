@@ -28,7 +28,9 @@ namespace Prototype_Golem
 
         LevelHandler levelHandler = new LevelHandler();
 
-
+        //debug
+        static Player player;
+        static Entities.Ruby ruby;
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -43,7 +45,8 @@ namespace Prototype_Golem
             // Initialization logic here
             camera = new Camera(-29f, -24f, 1f); //nice starting position for the camera
 
-            gameEntities.Add(new Player(new Vector2(24,31)));
+            gameEntities.Add(new Player(new Vector2(24,31))); player = (Player)gameEntities[0];
+            gameEntities.Add(new Entities.Ruby(new Vector2(41.5f,10f))); ruby = (Entities.Ruby)gameEntities[1];
 
             base.Initialize();
         }
@@ -62,6 +65,7 @@ namespace Prototype_Golem
 
             SoundEffects.Insert((int)SFX.JUMP, Content.Load<SoundEffect>("Sounds/woosh"));
             SoundEffects.Insert((int)SFX.THUMP, Content.Load<SoundEffect>("Sounds/thump"));
+            SoundEffects.Insert((int)SFX.PICKUP, Content.Load<SoundEffect>("Sounds/pickup"));
             
 
         }
@@ -82,6 +86,7 @@ namespace Prototype_Golem
             camera.Update();
 
             // Update logic here
+            //i have created a monstrosity
             foreach (Entity entity in entities) {
                 if (entity.Collide) entity.Collision.OldPos = entity.Pos;
                 entity.Update();
@@ -89,11 +94,24 @@ namespace Prototype_Golem
                 if (entity.Collide) {
                     entity.Collision.Pos = entity.Pos;
                     entity.Collision.Speed = entity.Speed;
-                    entity.Collision.CollisionUpdate(level.CollisionMap); //add pos and speed as refs or out or something
+                    entity.Collision.PrepareUpdate();
+                }
+            }
+            foreach (Entity entity in entities) {
+                if (entity.Collide) {
+                    entity.Collision.CollisionUpdate(level.CollisionMap, entities);
                     entity.Pos = entity.Collision.Pos;
                     entity.Speed = entity.Collision.Speed;
+                    foreach(Entity collidedEntity in entity.Collision.CollidedEntities) {
+                        entity.CollideWith(collidedEntity);
+                    }
                 }
-                
+            }
+            for (int i = 0; i<gameEntities.Count; i++) {
+                if (gameEntities[i].Delete) gameEntities.RemoveAt(i);
+            }
+            for (int i = 0; i<levelHandler.GetLevel().LevelEntities.Count; i++) {
+                if (levelHandler.GetLevel().LevelEntities[i].Delete) levelHandler.GetLevel().LevelEntities.RemoveAt(i);
             }
 
             Console.WriteLine($"Player Pos: {entities[0].Pos.X}, {entities[0].Pos.Y}");
@@ -161,7 +179,6 @@ namespace Prototype_Golem
 
             base.Draw(gameTime);
         }
-
 
     }
 }
