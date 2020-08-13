@@ -11,17 +11,17 @@ namespace Prototype_Golem
         public float Scalar {get; set;} //Zoom value
 
         public Camera() {
-            Scalar = 1;
+            Scalar = 1f;
         }
 
         public Camera(float x, float y, float scalar) {
-            Pos = new Vector2(x,y);
+            Pos = new Vector2(x*Game1.TILE_WIDTH,y*Game1.TILE_WIDTH);
             Scalar = scalar;
         }
 
         public Matrix getMatrix(GraphicsDevice graphicsDevice) {
 
-            Matrix translationMatrix = Matrix.CreateTranslation( (int) (Pos.X * Game1.TILE_WIDTH), (int) (Pos.Y * Game1.TILE_WIDTH), 0);
+            Matrix translationMatrix = Matrix.CreateTranslation( (int) (Pos.X), (int) (Pos.Y), 0);
             Matrix translationMatrix2 = Matrix.CreateTranslation(graphicsDevice.Viewport.Width*0.5f, graphicsDevice.Viewport.Height*0.5f, 1);
             Matrix scaleMatrix = Matrix.CreateScale(Scalar, Scalar, 1);
 

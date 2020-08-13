@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 
 namespace Prototype_Golem
@@ -11,6 +12,8 @@ namespace Prototype_Golem
         bool touchingGround = false;
         PlrInput input;
 
+        AnimationState animationState;
+
         public Player(Vector2 pos) {
             //spawns player outside of mech
             Pos = pos;
@@ -18,8 +21,10 @@ namespace Prototype_Golem
             Render = true;
             inMech = false;
             input = new PlrInput();
-            TextRect = new Rectangle(0, 0, 32, 32);
-            Collision = new AABB(1.875f, 1.875f,.0625f, .0625f); //the player is 2x2 with a pixel taken off an each side
+            TextID = TextureID.PLAYER;
+            TextRect = new Rectangle(0, 0, 32, 64);
+            animationState = AnimationState.STILL_RIGHT;
+            Collision = new AABB(new Point(8, 16), new Point(25, 61)); //the player is 1x2
         }
         public override void Update() {
             input.Update(Keyboard.GetState(), Mouse.GetState(), GamePad.GetState(PlayerIndex.One));
@@ -53,8 +58,50 @@ namespace Prototype_Golem
 
             Speed += gravity;
             //Console.WriteLine($"pos = {Pos}");
+
+            AnimationUpdate();
         
         }
 
+        void AnimationUpdate() {
+            AnimationState oldAnimationState = animationState;
+
+            if(input.Left.Held)
+                Console.Write("hi");
+            //these are just naturally going to be complicated with a lot of logic not sure how else to deal with it
+            if(input.Left.Held && Speed.X < 0 && touchingGround) animationState = AnimationState.WALKING_LEFT; //walking left
+            else if(input.Right.Held && Speed.X > 0 && touchingGround) animationState = AnimationState.WALKING_RIGHT; //walking right
+            else { //player is still
+                if (oldAnimationState == AnimationState.WALKING_LEFT) animationState = AnimationState.STILL_LEFT;
+                else if (oldAnimationState == AnimationState.WALKING_RIGHT) animationState = AnimationState.STILL_RIGHT;
+                TextRect = new Rectangle(0, 0, 32 ,64);
+            }
+
+            //TODO: midair animations and movement
+            
+            //if facing left mirror the image
+            if (animationState == AnimationState.STILL_LEFT || animationState == AnimationState.WALKING_LEFT) {
+                Effects = SpriteEffects.FlipHorizontally;
+            } else Effects = SpriteEffects.None;
+            
+            //if walking, change the image each frame
+            if (animationState == AnimationState.WALKING_LEFT || animationState == AnimationState.WALKING_RIGHT) {
+                WalkingLoop();
+            }
+        }
+
+        void WalkingLoop() {
+            if (TextRect.X < 5*32) //6 is the number of frames in the walking animation
+                TextRect = new Rectangle(TextRect.X+32, 0, 32, 64);
+            else
+                TextRect = new Rectangle(0, 0, 32, 64);
+        }
+
+        enum AnimationState {
+            STILL_LEFT,
+            STILL_RIGHT,
+            WALKING_LEFT,
+            WALKING_RIGHT,
+        }
     }
 }

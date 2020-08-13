@@ -13,7 +13,7 @@ namespace Prototype_Golem
 
     public class Game1 : Game
     {
-        public static readonly int TILE_WIDTH = 16; //you can change this to make funny graphical things happen and test flexibility
+        public static readonly int TILE_WIDTH = 32; //you can change this to make funny graphical things happen and test flexibility
         public static List<SoundEffect> SoundEffects {get; private set;}
 
         private GraphicsDeviceManager _graphics;
@@ -21,9 +21,9 @@ namespace Prototype_Golem
 
         Camera camera = new Camera();
 
-        Dictionary<string, Texture2D> textureDict = new Dictionary<string, Texture2D>();
+        Dictionary<TextureID, Texture2D> textureDict = new Dictionary<TextureID, Texture2D>();
 
-        List<Entity> gameEntities = new List<Entity>(); 
+        List<Entity> gameEntities = new List<Entity>();
         //does not include entities bound to the map
 
         LevelHandler levelHandler = new LevelHandler();
@@ -41,9 +41,9 @@ namespace Prototype_Golem
         protected override void Initialize()
         {
             // Initialization logic here
-            camera = new Camera(-19.5f, -25, 2.15f); //nice starting position for the camera
+            camera = new Camera(-19.5f, -25, 1f); //nice starting position for the camera
 
-            gameEntities.Add(new Player(new Vector2(24,30)));
+            gameEntities.Add(new Player(new Vector2(24,28)));
 
             base.Initialize();
         }
@@ -56,8 +56,9 @@ namespace Prototype_Golem
             //these need to run every time a map is loaded
             SoundEffects = new List<SoundEffect>();
 
-            textureDict.Add("prototype1", Content.Load<Texture2D>("Images/prototype1"));
-            textureDict.Add("entities", Content.Load<Texture2D>("Images/entities_map"));
+            textureDict.Add(TextureID.PROTOTYPE, Content.Load<Texture2D>("Images/prototype1"));
+            textureDict.Add(TextureID.ENTITIES_1, Content.Load<Texture2D>("Images/entities_map"));
+            textureDict.Add(TextureID.PLAYER, Content.Load<Texture2D>("Images/player"));
 
             SoundEffects.Insert((int)SFX.JUMP, Content.Load<SoundEffect>("Sounds/woosh"));
             SoundEffects.Insert((int)SFX.THUMP, Content.Load<SoundEffect>("Sounds/thump"));
@@ -67,8 +68,8 @@ namespace Prototype_Golem
 
         protected override void Update(GameTime gameTime)
         {
-            if(Keyboard.GetState().IsKeyDown(Keys.J)) { levelHandler.Load("test1"); gameEntities[0].Pos = new Vector2(16, 31);}
-            if(Keyboard.GetState().IsKeyDown(Keys.K)) { levelHandler.Load("test2"); gameEntities[0].Pos = new Vector2(24, 30);}
+            if(Keyboard.GetState().IsKeyDown(Keys.J)) { levelHandler.Load("test1"); gameEntities[0].Pos = new Vector2(16, 30);}
+            if(Keyboard.GetState().IsKeyDown(Keys.K)) { levelHandler.Load("test2"); gameEntities[0].Pos = new Vector2(24, 29);}
 
             Level level = levelHandler.GetLevel();
             List<Entity> entities = new List<Entity>();
@@ -86,16 +87,16 @@ namespace Prototype_Golem
             //TODO: input class to at the very least add multiple buttons for one thing for controller support
             //additionally, an input class would make this look less dumb.
             if(Keyboard.GetState().IsKeyDown(Keys.Left)) {
-                camera.Pos += new Vector2(.5f,0);
+                camera.Pos += new Vector2(5f,0);
             }
             if(Keyboard.GetState().IsKeyDown(Keys.Right)) {
-                camera.Pos += new Vector2(-.5f,0);
+                camera.Pos += new Vector2(-5f,0);
             }
             if(Keyboard.GetState().IsKeyDown(Keys.Up)) {
-                camera.Pos += new Vector2(0,.5f);
+                camera.Pos += new Vector2(0,5f);
             }
             if(Keyboard.GetState().IsKeyDown(Keys.Down)) {
-                camera.Pos += new Vector2(0,-.5f);
+                camera.Pos += new Vector2(0,-5f);
             }
 
             if(Keyboard.GetState().IsKeyDown(Keys.OemPlus)) {
@@ -139,15 +140,10 @@ namespace Prototype_Golem
             //TODO: see above im just putting it again so its a higher priority
 
             Texture2D tilesetTexture;
-            Texture2D entitiesTexture;
 
-            if (!textureDict.TryGetValue("prototype1", out tilesetTexture)) { //"prototype1" would be a variable after we find what tileset the map uses
+            if (!textureDict.TryGetValue(TextureID.PROTOTYPE, out tilesetTexture)) { //"prototype1" would be a variable after we find what tileset the map uses
                 //crashes if loading the image failed
                 throw new System.ArgumentException("Loading tilemap texture failed.");
-            }
-            if (!textureDict.TryGetValue("entities", out entitiesTexture)) {
-                //crashes if loading the image failed
-                throw new System.ArgumentException("Loading entities texture failed.");
             }
 
 
@@ -177,9 +173,11 @@ namespace Prototype_Golem
             //TODO: depth in some way so sprites can be drawn in a different order like entities can be underneath some tiles
             foreach(Entity entity in entities) {
                 if (entity.Render) {
+                    Texture2D entityTexture;
+                    textureDict.TryGetValue(entity.TextID, out entityTexture);
                     Rectangle destRect = new Rectangle((int)(entity.Pos.X*TILE_WIDTH), (int)(entity.Pos.Y*TILE_WIDTH), entity.TextRect.Width, entity.TextRect.Height);
                     Rectangle sourceRect = entity.TextRect;
-                    spriteBatch.Draw(entitiesTexture, destRect, sourceRect, Color.White);
+                    spriteBatch.Draw(entityTexture, destRect, sourceRect, Color.White, 0f, new Vector2(0,0), entity.Effects, 0f);
                 }
             } 
 

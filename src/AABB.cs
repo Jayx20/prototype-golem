@@ -18,6 +18,13 @@ namespace Prototype_Golem
             this.offsetRight = offsetRight;
         }
 
+        public AABB(Point topLeft, Point bottomRight) {
+            this.width = (float)bottomRight.X/Game1.TILE_WIDTH - (float)topLeft.X/Game1.TILE_WIDTH;
+            this.height = (float)bottomRight.Y/Game1.TILE_WIDTH - (float)topLeft.Y/Game1.TILE_WIDTH;
+            this.offsetRight = (float)topLeft.X/Game1.TILE_WIDTH;
+            this.offsetDown = (float)topLeft.Y/Game1.TILE_WIDTH;            
+        }
+
         protected override void CollideEntities()
         {
             
@@ -29,8 +36,8 @@ namespace Prototype_Golem
                 if (CollisionMask[i]) {
                     float selfLeft = offsetRight+Pos.X; float oldLeft = offsetRight+OldPos.X;
                     float selfTop = offsetDown+Pos.Y; float oldTop = offsetDown+OldPos.Y;
-                    float selfRight = width+Pos.X; float oldRight = width+OldPos.X;
-                    float selfBottom = height+Pos.Y; float oldBottom = height+OldPos.Y;
+                    float selfRight = width+offsetRight+Pos.X; float oldRight = width+offsetRight+OldPos.X;
+                    float selfBottom = height+offsetDown+Pos.Y; float oldBottom = height+offsetDown+OldPos.Y;
                     //for every tile the entity intersects
                     int tileId = LevelHandler.CollisionMap[i];
                     if(tileId == 0) continue; //air
@@ -45,22 +52,22 @@ namespace Prototype_Golem
                         bool touchRight = (selfLeft < tileRight);
                         if (touchTop && touchLeft && touchBottom && touchRight) { //touching at all
                             if(oldBottom < tileTop && ((tileId&(int)CollisionDirections.TOP)!=0)) { //collided from tiles top
-                                Pos = new Vector2(Pos.X, tileTop-height-0.001f);
+                                Pos = new Vector2(Pos.X, tileTop-height-offsetDown-0.001f);
                                 Speed = new Vector2(Speed.X, 0);
                                 TouchedSides |= (int)CollisionDirections.TOP;
                             }
                             else if (oldTop > tileBottom && ((tileId&(int)CollisionDirections.BOTTOM)!=0)) { //collided from tiles bottom
-                                Pos = new Vector2(Pos.X, tileBottom+0.001f);
+                                Pos = new Vector2(Pos.X, tileBottom-offsetDown+0.001f);
                                 Speed = new Vector2(Speed.X, 0);
                                 TouchedSides |= (int)CollisionDirections.BOTTOM;
                             }
                             else if (oldRight < tileLeft && ((tileId&(int)CollisionDirections.LEFT)!=0)) { //collided from tiles left
-                                Pos = new Vector2(tileLeft-width-0.001f, Pos.Y);
+                                Pos = new Vector2(tileLeft-width-offsetRight-0.001f, Pos.Y);
                                 Speed = new Vector2(0, Speed.Y);
                                 TouchedSides |= (int)CollisionDirections.LEFT;
                             }
                             else if (oldLeft > tileRight && ((tileId&(int)CollisionDirections.RIGHT)!=0)) {//collided from tiles right
-                                Pos = new Vector2(tileRight+0.001f, Pos.Y);
+                                Pos = new Vector2(tileRight-offsetRight+0.001f, Pos.Y);
                                 Speed = new Vector2(0, Speed.Y);
                                 TouchedSides |= (int)CollisionDirections.RIGHT;
                             }
@@ -79,8 +86,8 @@ namespace Prototype_Golem
         {
             int topLeftX = (int)(offsetRight+Pos.X);
             int topLeftY = (int)(offsetDown+Pos.Y);
-            int bottomRightX = (int)(width+Pos.X);
-            int bottomRightY = (int)(width+Pos.Y);
+            int bottomRightX = (int)Math.Ceiling(width+Pos.X);
+            int bottomRightY = (int)Math.Ceiling(height+Pos.Y);
 
             for(int x = topLeftX; x <= bottomRightX; x++) {
                 for (int y = topLeftY; y <= bottomRightY; y++) {
