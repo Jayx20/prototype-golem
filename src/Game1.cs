@@ -41,7 +41,7 @@ namespace Prototype_Golem
         protected override void Initialize()
         {
             // Initialization logic here
-            camera = new Camera(-21.5f, -25, 1f); //nice starting position for the camera
+            camera = new Camera(-29f, -24f, 1f); //nice starting position for the camera
 
             gameEntities.Add(new Player(new Vector2(24,31)));
 
@@ -68,8 +68,8 @@ namespace Prototype_Golem
 
         protected override void Update(GameTime gameTime)
         {
-            if(Keyboard.GetState().IsKeyDown(Keys.J)) { levelHandler.Load("test1"); gameEntities[0].Pos = new Vector2(16, 32);}
-            if(Keyboard.GetState().IsKeyDown(Keys.K)) { levelHandler.Load("test2"); gameEntities[0].Pos = new Vector2(24, 31);}
+            if(Keyboard.GetState().IsKeyDown(Keys.J)) { levelHandler.Load("test1"); gameEntities[0].Pos = new Vector2(16, 32); camera = new Camera(-20f, -25f, 1f);}
+            if(Keyboard.GetState().IsKeyDown(Keys.K)) { levelHandler.Load("test2"); gameEntities[0].Pos = new Vector2(24, 31); camera = new Camera(-29f, -24f, 1f);}
 
             Level level = levelHandler.GetLevel();
             List<Entity> entities = new List<Entity>();
@@ -79,33 +79,9 @@ namespace Prototype_Golem
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            //Console.WriteLine($"FPS: {1 / gameTime.ElapsedGameTime.TotalSeconds}");
+            camera.Update();
 
             // Update logic here
-
-            //sort of todo: bounds on the zoom and maybe change movement speed. however this will be pointless in the final product where camera zoom and position is determined from the players state
-            //TODO: input class to at the very least add multiple buttons for one thing for controller support
-            //additionally, an input class would make this look less dumb.
-            if(Keyboard.GetState().IsKeyDown(Keys.Left)) {
-                camera.Pos += new Vector2(Constants.CAMERA_SPEED,0);
-            }
-            if(Keyboard.GetState().IsKeyDown(Keys.Right)) {
-                camera.Pos += new Vector2(-Constants.CAMERA_SPEED,0);
-            }
-            if(Keyboard.GetState().IsKeyDown(Keys.Up)) {
-                camera.Pos += new Vector2(0,Constants.CAMERA_SPEED);
-            }
-            if(Keyboard.GetState().IsKeyDown(Keys.Down)) {
-                camera.Pos += new Vector2(0,-Constants.CAMERA_SPEED);
-            }
-
-            if(Keyboard.GetState().IsKeyDown(Keys.OemPlus)) {
-                camera.Scalar += Constants.CAMERA_ZOOM_SPEED;
-            }
-            if(Keyboard.GetState().IsKeyDown(Keys.OemMinus)) {
-                camera.Scalar -= Constants.CAMERA_ZOOM_SPEED;
-            }
-
             foreach (Entity entity in entities) {
                 if (entity.Collide) entity.Collision.OldPos = entity.Pos;
                 entity.Update();
@@ -121,7 +97,7 @@ namespace Prototype_Golem
             }
 
             Console.WriteLine($"Player Pos: {entities[0].Pos.X}, {entities[0].Pos.Y}");
-            Console.WriteLine($"Camera Pos: {camera.Pos.X}, {camera.Pos.Y}, Scale: {camera.Scalar}");
+            Console.WriteLine($"Camera Pos: {camera.Pos.X/Game1.TILE_WIDTH}, {camera.Pos.Y/Game1.TILE_WIDTH}, Scale: {camera.Scalar}");
             
             base.Update(gameTime);
         }
