@@ -52,22 +52,22 @@ namespace Prototype_Golem
                         bool touchRight = (selfLeft < tileRight);
                         if (touchTop && touchLeft && touchBottom && touchRight) { //touching at all
                             if(oldBottom < tileTop && ((tileId&(int)CollisionDirections.TOP)!=0)) { //collided from tiles top
-                                Pos = new Vector2(Pos.X, tileTop-height-offsetDown-0.001f);
+                                Pos = new Vector2(Pos.X, tileTop-height-offsetDown-Constants.COLLISION_PUSH_DISTANCE);
                                 Speed = new Vector2(Speed.X, 0);
                                 TouchedSides |= (int)CollisionDirections.TOP;
                             }
                             else if (oldTop > tileBottom && ((tileId&(int)CollisionDirections.BOTTOM)!=0)) { //collided from tiles bottom
-                                Pos = new Vector2(Pos.X, tileBottom-offsetDown+0.001f);
+                                Pos = new Vector2(Pos.X, tileBottom-offsetDown+Constants.COLLISION_PUSH_DISTANCE);
                                 Speed = new Vector2(Speed.X, 0);
                                 TouchedSides |= (int)CollisionDirections.BOTTOM;
                             }
                             else if (oldRight < tileLeft && ((tileId&(int)CollisionDirections.LEFT)!=0)) { //collided from tiles left
-                                Pos = new Vector2(tileLeft-width-offsetRight-0.001f, Pos.Y);
+                                Pos = new Vector2(tileLeft-width-offsetRight-Constants.COLLISION_PUSH_DISTANCE, Pos.Y);
                                 Speed = new Vector2(0, Speed.Y);
                                 TouchedSides |= (int)CollisionDirections.LEFT;
                             }
                             else if (oldLeft > tileRight && ((tileId&(int)CollisionDirections.RIGHT)!=0)) {//collided from tiles right
-                                Pos = new Vector2(tileRight-offsetRight+0.001f, Pos.Y);
+                                Pos = new Vector2(tileRight-offsetRight+Constants.COLLISION_PUSH_DISTANCE, Pos.Y);
                                 Speed = new Vector2(0, Speed.Y);
                                 TouchedSides |= (int)CollisionDirections.RIGHT;
                             }

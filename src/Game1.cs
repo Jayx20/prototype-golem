@@ -32,8 +32,8 @@ namespace Prototype_Golem
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
-            _graphics.PreferredBackBufferWidth = 1280;
-            _graphics.PreferredBackBufferHeight = 720;
+            _graphics.PreferredBackBufferWidth = Constants.SCREEN_WIDTH;
+            _graphics.PreferredBackBufferHeight = Constants.SCREEN_HEIGHT;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
@@ -87,23 +87,23 @@ namespace Prototype_Golem
             //TODO: input class to at the very least add multiple buttons for one thing for controller support
             //additionally, an input class would make this look less dumb.
             if(Keyboard.GetState().IsKeyDown(Keys.Left)) {
-                camera.Pos += new Vector2(5f,0);
+                camera.Pos += new Vector2(Constants.CAMERA_SPEED,0);
             }
             if(Keyboard.GetState().IsKeyDown(Keys.Right)) {
-                camera.Pos += new Vector2(-5f,0);
+                camera.Pos += new Vector2(-Constants.CAMERA_SPEED,0);
             }
             if(Keyboard.GetState().IsKeyDown(Keys.Up)) {
-                camera.Pos += new Vector2(0,5f);
+                camera.Pos += new Vector2(0,Constants.CAMERA_SPEED);
             }
             if(Keyboard.GetState().IsKeyDown(Keys.Down)) {
-                camera.Pos += new Vector2(0,-5f);
+                camera.Pos += new Vector2(0,-Constants.CAMERA_SPEED);
             }
 
             if(Keyboard.GetState().IsKeyDown(Keys.OemPlus)) {
-                camera.Scalar += 0.05f;
+                camera.Scalar += Constants.CAMERA_ZOOM_SPEED;
             }
             if(Keyboard.GetState().IsKeyDown(Keys.OemMinus)) {
-                camera.Scalar -= 0.05f;
+                camera.Scalar -= Constants.CAMERA_ZOOM_SPEED;
             }
 
             foreach (Entity entity in entities) {

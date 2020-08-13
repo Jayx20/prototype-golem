@@ -30,7 +30,7 @@ namespace Prototype_Golem
             input.Update(Keyboard.GetState(), Mouse.GetState(), GamePad.GetState(PlayerIndex.One));
 
             //experimental gravity - not sure if i will have an acceleration variable
-            Vector2 gravity = new Vector2(0, 0.05f); //
+            Vector2 gravity = new Vector2(0, Constants.GRAVITY_STRENGTH);
 
             //jumping logic
             bool wasTouchingGround = touchingGround;
@@ -46,12 +46,12 @@ namespace Prototype_Golem
             if(!touchingGround) canJump = false;
 
             Speed = new Vector2(0, Speed.Y); //reset X speed might change later
-            if(input.Left.Held)  Speed += new Vector2(-.2f, 0);
-            if(input.Right.Held) Speed += new Vector2(.2f, 0);
-            if(input.Up.Held || input.Interact1.Held) gravity*=.5f; //
+            if(input.Left.Held)  Speed += new Vector2(-Constants.MOVEMENT_SPEED, 0);
+            if(input.Right.Held) Speed += new Vector2(Constants.MOVEMENT_SPEED, 0);
+            if((input.Up.Held || input.Interact1.Held) && Speed.Y < 0) gravity*=Constants.GRAVITY_MULTIPLIER; //
             if((input.Up.Pressed || input.Interact1.Pressed) && canJump) {
                 canJump = false;
-                Speed = new Vector2(Speed.X, -.52f);
+                Speed = new Vector2(Speed.X, -Constants.JUMP_FORCE);
                 Game1.SoundEffects[(int)SFX.JUMP].CreateInstance().Play();
             } //
             //if(input.Down.Held) {Speed += new Vector2(0, .2f);}
