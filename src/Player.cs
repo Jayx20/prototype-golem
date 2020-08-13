@@ -99,7 +99,7 @@ namespace Prototype_Golem
             else { //player is still
                 if (oldAnimationState == AnimationState.WALKING_LEFT) animationState = AnimationState.STILL_LEFT;
                 else if (oldAnimationState == AnimationState.WALKING_RIGHT) animationState = AnimationState.STILL_RIGHT;
-                TextRect = new Rectangle(0, 0, 32 ,64);
+                TextRect = new Rectangle(0, 0, 32 ,64); animationFrame = 0;
             }
 
             //TODO: midair animations and movement
@@ -115,11 +115,16 @@ namespace Prototype_Golem
             }
         }
 
+        int animationFrame = 0;
         void WalkingLoop() {
-            if (TextRect.X < 5*32) //6 is the number of frames in the walking animation
-                TextRect = new Rectangle(TextRect.X+32, 0, 32, 64);
-            else
-                TextRect = new Rectangle(0, 0, 32, 64);
+            animationFrame++;
+            if(animationFrame >= Constants.FRAMES_PER_ANIMATION_STEP) {
+                animationFrame = 0;
+                if (TextRect.X < 5*32) //6 is the number of frames in the walking animation
+                    TextRect = new Rectangle(TextRect.X+32, 0, 32, 64);
+                else
+                    TextRect = new Rectangle(0, 0, 32, 64);
+            }
         }
 
         enum AnimationState {

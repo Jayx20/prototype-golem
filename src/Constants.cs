@@ -17,9 +17,12 @@ namespace Prototype_Golem
         public const float JUMP_REDUCTION_MULTIPLIER = .75f;
         public const float JUMP_FORCE = .42f;
 
+        //Animations
+        public const int FRAMES_PER_ANIMATION_STEP = 3;
+
         //Camera
-        public const float CAMERA_SPEED = 5f;
-        public const float CAMERA_ZOOM_SPEED = .05f;
+        public const float CAMERA_SPEED = 8f;
+        public const float CAMERA_ZOOM_SPEED = .02f;
 
         //Collision
         public const float COLLISION_PUSH_DISTANCE = 0.001f;
