@@ -41,9 +41,9 @@ namespace Prototype_Golem
         protected override void Initialize()
         {
             // Initialization logic here
-            camera = new Camera(-19.5f, -25, 1f); //nice starting position for the camera
+            camera = new Camera(-21.5f, -25, 1f); //nice starting position for the camera
 
-            gameEntities.Add(new Player(new Vector2(24,28)));
+            gameEntities.Add(new Player(new Vector2(24,31)));
 
             base.Initialize();
         }
@@ -68,8 +68,8 @@ namespace Prototype_Golem
 
         protected override void Update(GameTime gameTime)
         {
-            if(Keyboard.GetState().IsKeyDown(Keys.J)) { levelHandler.Load("test1"); gameEntities[0].Pos = new Vector2(16, 30);}
-            if(Keyboard.GetState().IsKeyDown(Keys.K)) { levelHandler.Load("test2"); gameEntities[0].Pos = new Vector2(24, 29);}
+            if(Keyboard.GetState().IsKeyDown(Keys.J)) { levelHandler.Load("test1"); gameEntities[0].Pos = new Vector2(16, 32);}
+            if(Keyboard.GetState().IsKeyDown(Keys.K)) { levelHandler.Load("test2"); gameEntities[0].Pos = new Vector2(24, 31);}
 
             Level level = levelHandler.GetLevel();
             List<Entity> entities = new List<Entity>();
