@@ -46,7 +46,7 @@ namespace Prototype_Golem
             camera = new Camera(-29f, -24f, 1f); //nice starting position for the camera
 
             gameEntities.Add(new Player(new Vector2(24,31))); player = (Player)gameEntities[0];
-            gameEntities.Add(new Entities.Ruby(new Vector2(41.5f,10f))); ruby = (Entities.Ruby)gameEntities[1];
+            //gameEntities.Add(new Entities.Ruby(new Vector2(54.5f,8f))); ruby = (Entities.Ruby)gameEntities[1];
 
             base.Initialize();
         }
@@ -74,6 +74,8 @@ namespace Prototype_Golem
         {
             if(Keyboard.GetState().IsKeyDown(Keys.J)) { levelHandler.Load("test1"); gameEntities[0].Pos = new Vector2(16, 32); camera = new Camera(-20f, -25f, 1f);}
             if(Keyboard.GetState().IsKeyDown(Keys.K)) { levelHandler.Load("test2"); gameEntities[0].Pos = new Vector2(24, 31); camera = new Camera(-29f, -24f, 1f);}
+            if(Keyboard.GetState().IsKeyDown(Keys.L)) { levelHandler.Load("test3"); gameEntities[0].Pos = levelHandler.PlayerSpawn; camera = new Camera(levelHandler.CameraOrigin.X, levelHandler.CameraOrigin.Y, 1f);}
+            
 
             Level level = levelHandler.GetLevel();
             List<Entity> entities = new List<Entity>();
@@ -141,7 +143,7 @@ namespace Prototype_Golem
             }
 
 
-            TmxLayer baseLayer = level.GetLayers()[0];
+            TmxLayer baseLayer = level.GetLayers()["base"];
 
             spriteBatch.Begin(transformMatrix: camera.getMatrix(_graphics.GraphicsDevice),samplerState: SamplerState.PointClamp); //PointClamp makes scaling tiles look quite nice
 

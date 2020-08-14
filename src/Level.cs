@@ -1,6 +1,7 @@
 using TiledSharp;
 using System.Collections.Generic;
 using System;
+using Microsoft.Xna.Framework;
 
 namespace Prototype_Golem
 {
@@ -16,15 +17,27 @@ namespace Prototype_Golem
 
         public int Columns {get; private set;}
         
+        public Vector2 PlayerSpawn {get; private set;} = new Vector2(1, 1);
+        public Vector2 CameraOrigin {get; private set;} = new Vector2(1, 1);
+        
+
         public TmxTileset BaseTileset {get; private set;} //maybe todo allow for multiple tilesets to be used or just have a list so you have one for each layer
         TmxMap map;
 
         //returns the layers of the map in the order they are supposed to be drawn in
         //TODO: support more layers and figure out depth
-        public List<TmxLayer> GetLayers() {
-            var layers = new List<TmxLayer>();
+        public TmxList<TmxLayer> GetLayers() {
+            var layers = new TmxList<TmxLayer>();
             layers.Add(map.Layers["base"]);
             return layers;
+        }
+        public TmxList<TmxObject> Objects {
+            get {
+                if (map.ObjectGroups.Contains("objects"))
+                    return map.ObjectGroups["objects"].Objects;
+                else
+                    return null;
+            }
         }
         public Level(string mapName) {
             map = new TmxMap("Maps/"+mapName+".tmx");
@@ -38,7 +51,25 @@ namespace Prototype_Golem
             }
 
             LevelEntities = new List<Entity>();
-            //TODO: load entities from the level
+            
+            if(Objects != null) {
+                foreach(TmxObject tmxObject in Objects) {
+                    //no idea how to do this except a massive switch statement for every single type of entity....
+                    switch (tmxObject.Type) {
+                        case "ruby":
+                            LevelEntities.Add(new Entities.Ruby(new Vector2((float)tmxObject.X/Game1.TILE_WIDTH, (float)(tmxObject.Y-tmxObject.Height)/Game1.TILE_WIDTH)));
+                            break;
+                        case "spawn":
+                            PlayerSpawn = new Vector2((float)tmxObject.X/Game1.TILE_WIDTH, (float)tmxObject.Y/Game1.TILE_WIDTH);
+                            CameraOrigin = new Vector2((float)-tmxObject.X/Game1.TILE_WIDTH, (float)-tmxObject.Y/Game1.TILE_WIDTH);
+                            break;
+                        default:
+                            Console.Error.WriteLine($"Unknown object in map {tmxObject.Type}");
+                            break;
+                            
+                    }
+                }
+            }
         }
 
         int[] MapToCollisionMap(TmxMap map) {
