@@ -13,6 +13,8 @@ namespace Prototype_Golem
         float height;
 
         public RectangleF SelfBounds {get {return new RectangleF(Pos.X+offsetRight, Pos.Y+offsetDown, width, height);}}
+        public RectangleF HorizontalBounds {get {return new RectangleF(Pos.X+offsetRight, OldPos.Y+offsetDown, width, height);}}
+        public RectangleF VerticalBounds {get {return new RectangleF(OldPos.X+offsetRight, Pos.Y+offsetDown, width, height);}}
         public RectangleF OldBounds {get {return new RectangleF(OldPos.X+offsetRight, OldPos.Y+offsetDown, width, height);}}
 
         public AABB(float width, float height, float offsetDown = 0, float offsetRight = 0) {
@@ -65,42 +67,45 @@ namespace Prototype_Golem
 
         protected override void CollideTiles()
         {
-            for(int i = 0; i < LevelHandler.MapWidth*LevelHandler.MapHeight; i++) {
-                if (CollisionMask[i]) {
+            for (int e = 0; e < 2; e++) { //two checks: horizontal, then vertical
+                bool vertical = (e==1); //check horizontal first, then vertical
+                for (int i = 0; i < LevelHandler.MapWidth*LevelHandler.MapHeight; i++) {
+                    //go through every tile
+                    if (CollisionMask[i]) { //proceed if the entity could be intersecting it
+                        int tileId = LevelHandler.CollisionMap[i]; //Store the collision value for this tile
+                        if (tileId == 0) continue; //Tile does not collide, proceed to check other tiles
+                        RectangleF tileBounds = new RectangleF(i % LevelHandler.MapWidth, i / LevelHandler.MapWidth, 1, 1);
+                        if (tileId < 16) { //standard tile with no slope
+                            if (!vertical) { //horizontal
+                                if (HorizontalBounds.Intersects(tileBounds)) {
+                                    //Check if we entered through the left or through the right and respond accordingly
+                                    if (OldBounds.Right < tileBounds.Left && ((tileId&(int)CollisionDirections.LEFT)!=0)) { //collided from tiles left
+                                        Pos = new Vector2(tileBounds.Left-width-offsetRight-Constants.COLLISION_PUSH_DISTANCE, Pos.Y);
+                                        Speed = new Vector2(0, Speed.Y);
+                                        TouchedSides |= (int)CollisionDirections.LEFT;
+                                    }
+                                    else if (OldBounds.Left > tileBounds.Right && ((tileId&(int)CollisionDirections.RIGHT)!=0)) {//collided from tiles right
+                                        Pos = new Vector2(tileBounds.Right-offsetRight+Constants.COLLISION_PUSH_DISTANCE, Pos.Y);
+                                        Speed = new Vector2(0, Speed.Y);
+                                        TouchedSides |= (int)CollisionDirections.RIGHT;
+                                    }
+                                }
+                            } else { //vertical
+                                if (VerticalBounds.Intersects(tileBounds)) {
+                                    if(OldBounds.Bottom < tileBounds.Top && ((tileId&(int)CollisionDirections.TOP)!=0)) { //collided from tiles top
+                                        Pos = new Vector2(Pos.X, tileBounds.Top-height-offsetDown-Constants.COLLISION_PUSH_DISTANCE);
+                                        Speed = new Vector2(Speed.X, 0);
+                                        TouchedSides |= (int)CollisionDirections.TOP;
+                                    }
+                                    else if (OldBounds.Top > tileBounds.Bottom && ((tileId&(int)CollisionDirections.BOTTOM)!=0)) { //collided from tiles bottom
+                                        Pos = new Vector2(Pos.X, tileBounds.Bottom-offsetDown+Constants.COLLISION_PUSH_DISTANCE);
+                                        Speed = new Vector2(Speed.X, 0);
+                                        TouchedSides |= (int)CollisionDirections.BOTTOM;
+                                    }
+                                }
+                            }
 
-                    //for every tile the entity intersects
-                    int tileId = LevelHandler.CollisionMap[i];
-                    if(tileId == 0) continue; //air
-                    RectangleF tileBounds = new RectangleF(i % LevelHandler.MapWidth, i / LevelHandler.MapWidth, 1, 1);
-
-                    if(tileId < 16) { //standard tile with no slope or anything
-                        if (SelfBounds.Intersects(tileBounds)) {
-                            if(OldBounds.Bottom < tileBounds.Top && ((tileId&(int)CollisionDirections.TOP)!=0)) { //collided from tiles top
-                                Pos = new Vector2(Pos.X, tileBounds.Top-height-offsetDown-Constants.COLLISION_PUSH_DISTANCE);
-                                Speed = new Vector2(Speed.X, 0);
-                                TouchedSides |= (int)CollisionDirections.TOP;
-                            }
-                            else if (OldBounds.Top > tileBounds.Bottom && ((tileId&(int)CollisionDirections.BOTTOM)!=0)) { //collided from tiles bottom
-                                Pos = new Vector2(Pos.X, tileBounds.Bottom-offsetDown+Constants.COLLISION_PUSH_DISTANCE);
-                                Speed = new Vector2(Speed.X, 0);
-                                TouchedSides |= (int)CollisionDirections.BOTTOM;
-                            }
-                            else if (OldBounds.Right < tileBounds.Left && ((tileId&(int)CollisionDirections.LEFT)!=0)) { //collided from tiles left
-                                Pos = new Vector2(tileBounds.Left-width-offsetRight-Constants.COLLISION_PUSH_DISTANCE, Pos.Y);
-                                Speed = new Vector2(0, Speed.Y);
-                                TouchedSides |= (int)CollisionDirections.LEFT;
-                            }
-                            else if (OldBounds.Left > tileBounds.Right && ((tileId&(int)CollisionDirections.RIGHT)!=0)) {//collided from tiles right
-                                Pos = new Vector2(tileBounds.Right-offsetRight+Constants.COLLISION_PUSH_DISTANCE, Pos.Y);
-                                Speed = new Vector2(0, Speed.Y);
-                                TouchedSides |= (int)CollisionDirections.RIGHT;
-                            }
-                        }
-                        //possible todo, may need to address tunneling issues if they occur
-                    }
-                    else {
-                        //extra possibilities, platforms you can fall through, and spikes
-                        throw new NotImplementedException();
+                        } else throw new NotImplementedException("Tile collision type not implemented.");
                     }
                 }
             }
