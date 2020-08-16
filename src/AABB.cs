@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System;
+using static Prototype_Golem.Constants;
 
 namespace Prototype_Golem
 {
@@ -8,16 +9,16 @@ namespace Prototype_Golem
     {
         //right now while i am using floats for coordinates, bounding boxes should all be at least .001 smaller than a full block
         //0, 0 being the top left, every 1 is a tile width. So a 1x1 thing would just be 0, 0, 1, 1
-        float offsetDown; float offsetRight; //usually going to be 0, used if the bounding box is inside the entity
-        float width;
-        float height;
+        int offsetDown; int offsetRight; //usually going to be 0, used if the bounding box is inside the entity
+        int width;
+        int height;
 
-        public RectangleF SelfBounds {get {return new RectangleF(Pos.X+offsetRight, Pos.Y+offsetDown, width, height);}}
-        public RectangleF HorizontalBounds {get {return new RectangleF(Pos.X+offsetRight, OldPos.Y+offsetDown, width, height);}}
-        public RectangleF VerticalBounds {get {return new RectangleF(OldPos.X+offsetRight, Pos.Y+offsetDown, width, height);}}
-        public RectangleF OldBounds {get {return new RectangleF(OldPos.X+offsetRight, OldPos.Y+offsetDown, width, height);}}
+        public Rectangle SelfBounds {get {return new Rectangle(Pos.X+offsetRight, Pos.Y+offsetDown, width, height);}}
+        public Rectangle HorizontalBounds {get {return new Rectangle(Pos.X+offsetRight, OldPos.Y+offsetDown, width, height);}}
+        public Rectangle VerticalBounds {get {return new Rectangle(OldPos.X+offsetRight, Pos.Y+offsetDown, width, height);}}
+        public Rectangle OldBounds {get {return new Rectangle(OldPos.X+offsetRight, OldPos.Y+offsetDown, width, height);}}
 
-        public AABB(float width, float height, float offsetDown = 0, float offsetRight = 0) {
+        public AABB(int width, int height, int offsetDown = 0, int offsetRight = 0) {
             this.width = width;
             this.height = height;
             this.offsetDown = offsetDown;
@@ -25,10 +26,10 @@ namespace Prototype_Golem
         }
 
         public AABB(Point topLeft, Point bottomRight) {
-            this.width = (float)bottomRight.X/Game1.TILE_WIDTH - (float)topLeft.X/Game1.TILE_WIDTH;
-            this.height = (float)bottomRight.Y/Game1.TILE_WIDTH - (float)topLeft.Y/Game1.TILE_WIDTH;
-            this.offsetRight = (float)topLeft.X/Game1.TILE_WIDTH;
-            this.offsetDown = (float)topLeft.Y/Game1.TILE_WIDTH;            
+            this.width = bottomRight.X - topLeft.X;
+            this.height = bottomRight.Y - topLeft.Y;
+            this.offsetRight = topLeft.X;
+            this.offsetDown = topLeft.Y;
         }
 
         protected override void CollideDetectEntities(List<Entity> entities)
@@ -74,55 +75,65 @@ namespace Prototype_Golem
                     if (CollisionMask[i]) { //proceed if the entity could be intersecting it
                         int tileId = LevelHandler.CollisionMap[i]; //Store the collision value for this tile
                         if (tileId == 0) continue; //Tile does not collide, proceed to check other tiles
-                        RectangleF tileBounds = new RectangleF(i % LevelHandler.MapWidth, i / LevelHandler.MapWidth, 1, 1);
+                        Rectangle tileBounds = new Rectangle((i % LevelHandler.MapWidth)*TILE_WIDTH, (i / LevelHandler.MapWidth)*TILE_WIDTH, TILE_WIDTH, TILE_WIDTH);
                         if (tileId < 16) { //standard tile with no slope
-                            if (!vertical) { //horizontal
-                                if (HorizontalBounds.Intersects(tileBounds)) {
-                                    //Check if we entered through the left or through the right and respond accordingly
-                                    if (OldBounds.Right < tileBounds.Left && ((tileId&(int)CollisionDirections.LEFT)!=0)) { //collided from tiles left
-                                        Pos = new Vector2(tileBounds.Left-width-offsetRight-Constants.COLLISION_PUSH_DISTANCE, Pos.Y);
-                                        Speed = new Vector2(0, Speed.Y);
-                                        TouchedSides |= (int)CollisionDirections.LEFT;
-                                    }
-                                    else if (OldBounds.Left > tileBounds.Right && ((tileId&(int)CollisionDirections.RIGHT)!=0)) {//collided from tiles right
-                                        Pos = new Vector2(tileBounds.Right-offsetRight+Constants.COLLISION_PUSH_DISTANCE, Pos.Y);
-                                        Speed = new Vector2(0, Speed.Y);
-                                        TouchedSides |= (int)CollisionDirections.RIGHT;
-                                    }
-                                }
-                            } else { //vertical
-                                if (VerticalBounds.Intersects(tileBounds)) {
-                                    if(OldBounds.Bottom < tileBounds.Top && ((tileId&(int)CollisionDirections.TOP)!=0)) { //collided from tiles top
-                                        Pos = new Vector2(Pos.X, tileBounds.Top-height-offsetDown-Constants.COLLISION_PUSH_DISTANCE);
-                                        Speed = new Vector2(Speed.X, 0);
-                                        TouchedSides |= (int)CollisionDirections.TOP;
-                                    }
-                                    else if (OldBounds.Top > tileBounds.Bottom && ((tileId&(int)CollisionDirections.BOTTOM)!=0)) { //collided from tiles bottom
-                                        Pos = new Vector2(Pos.X, tileBounds.Bottom-offsetDown+Constants.COLLISION_PUSH_DISTANCE);
-                                        Speed = new Vector2(Speed.X, 0);
-                                        TouchedSides |= (int)CollisionDirections.BOTTOM;
-                                    }
-                                }
-                            }
-
+                            if (!vertical)
+                                ResolveHorizontalIntersect(tileId, tileBounds);
+                            else
+                                ResolveVerticalIntersect(tileId, tileBounds);
                         } else throw new NotImplementedException("Tile collision type not implemented.");
                     }
                 }
             }
         }
 
+        void ResolveHorizontalIntersect(int tileId, Rectangle tileBounds) {
+            if (HorizontalBounds.Intersects(tileBounds)) {
+                //Check if we entered through the left or through the right and respond accordingly
+                if (OldBounds.Right <= tileBounds.Left && ((tileId&(int)CollisionDirections.LEFT)!=0)) { //collided from tiles left
+                    Pos = new Point(tileBounds.Left-width-offsetRight, Pos.Y);
+                    Speed = new Vector2(0, Speed.Y);
+                    TouchedSides |= (int)CollisionDirections.LEFT;
+                }
+                else if (OldBounds.Left >= tileBounds.Right && ((tileId&(int)CollisionDirections.RIGHT)!=0)) {//collided from tiles right
+                    Pos = new Point(tileBounds.Right-offsetRight, Pos.Y);
+                    Speed = new Vector2(0, Speed.Y);
+                    TouchedSides |= (int)CollisionDirections.RIGHT;
+                }
+            }
+        }
+
+        void ResolveVerticalIntersect(int tileId, Rectangle tileBounds) {
+            if (VerticalBounds.Intersects(tileBounds)) {
+                if(OldBounds.Bottom <= tileBounds.Top && ((tileId&(int)CollisionDirections.TOP)!=0)) { //collided from tiles top
+                    Pos = new Point(Pos.X, tileBounds.Top-height-offsetDown);
+                    Speed = new Vector2(Speed.X, 0);
+                    TouchedSides |= (int)CollisionDirections.TOP;
+                }
+                else if (OldBounds.Top >= tileBounds.Bottom && ((tileId&(int)CollisionDirections.BOTTOM)!=0)) { //collided from tiles bottom
+                    Pos = new Point(Pos.X, tileBounds.Bottom-offsetDown);
+                    Speed = new Vector2(Speed.X, 0);
+                    TouchedSides |= (int)CollisionDirections.BOTTOM;
+                }
+            }
+        }
+
         protected override void UpdateCollisionMask()
         {
-            int topLeftX = (int)(offsetRight+Pos.X);
-            int topLeftY = (int)(offsetDown+Pos.Y);
-            int bottomRightX = (int)Math.Ceiling(width+Pos.X);
-            int bottomRightY = (int)Math.Ceiling(height+Pos.Y);
+            int topLeftX = (int)(((float)offsetRight+(float)Pos.X)/TILE_WIDTH);
+            int topLeftY = (int)(((float)offsetDown+(float)Pos.Y)/TILE_WIDTH);
+            int bottomRightX = (int)Math.Ceiling(((float)width+(float)Pos.X)/TILE_WIDTH);
+            int bottomRightY = (int)Math.Ceiling(((float)height+(float)Pos.Y)/TILE_WIDTH);
 
             for(int x = topLeftX; x <= bottomRightX; x++) {
                 for (int y = topLeftY; y <= bottomRightY; y++) {
                     if (y*LevelHandler.MapWidth+x >= LevelHandler.MapWidth*LevelHandler.MapHeight || y*LevelHandler.MapWidth+x < 0) continue;
                     CollisionMask[y*LevelHandler.MapWidth+x] = true;
                 }
+            }
+
+            for (int i = 0; i < CollisionMask.Length; i++) {
+                CollisionMask[i] = true;
             }
         }
     }

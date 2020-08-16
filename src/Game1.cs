@@ -8,12 +8,13 @@ using System;
 
 using TiledSharp;
 
+using static Prototype_Golem.Constants;
+
 namespace Prototype_Golem
 {
 
     public class Game1 : Game
     {
-        public static readonly int TILE_WIDTH = 32; //you can change this to make funny graphical things happen and test flexibility
         public static List<SoundEffect> SoundEffects {get; private set;}
 
         private GraphicsDeviceManager _graphics;
@@ -30,7 +31,6 @@ namespace Prototype_Golem
 
         //debug
         static Player player;
-        static Entities.Ruby ruby;
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -45,7 +45,7 @@ namespace Prototype_Golem
             // Initialization logic here
             camera = new Camera(-29f, -24f, 1f); //nice starting position for the camera
 
-            gameEntities.Add(new Player(new Vector2(24,31))); player = (Player)gameEntities[0];
+            gameEntities.Add(new Player(new Point(24*TILE_WIDTH,31*TILE_WIDTH))); player = (Player)gameEntities[0];
             //gameEntities.Add(new Entities.Ruby(new Vector2(54.5f,8f))); ruby = (Entities.Ruby)gameEntities[1];
 
             base.Initialize();
@@ -72,8 +72,8 @@ namespace Prototype_Golem
 
         protected override void Update(GameTime gameTime)
         {
-            if(Keyboard.GetState().IsKeyDown(Keys.J)) { levelHandler.Load("test1"); gameEntities[0].Pos = new Vector2(16, 32); camera = new Camera(-20f, -25f, 1f);}
-            if(Keyboard.GetState().IsKeyDown(Keys.K)) { levelHandler.Load("test2"); gameEntities[0].Pos = new Vector2(24, 31); camera = new Camera(-29f, -24f, 1f);}
+            if(Keyboard.GetState().IsKeyDown(Keys.J)) { levelHandler.Load("test1"); gameEntities[0].Pos = new Point(16*TILE_WIDTH, 32*TILE_WIDTH); camera = new Camera(-20f, -25f, 1f);}
+            if(Keyboard.GetState().IsKeyDown(Keys.K)) { levelHandler.Load("test2"); gameEntities[0].Pos = new Point(24*TILE_WIDTH, 31*TILE_WIDTH); camera = new Camera(-29f, -24f, 1f);}
             if(Keyboard.GetState().IsKeyDown(Keys.L)) { levelHandler.Load("test3"); gameEntities[0].Pos = levelHandler.PlayerSpawn; camera = new Camera(levelHandler.CameraOrigin.X, levelHandler.CameraOrigin.Y, 1f);}
             
 
@@ -117,7 +117,7 @@ namespace Prototype_Golem
             }
 
             Console.WriteLine($"Player Pos: {entities[0].Pos.X}, {entities[0].Pos.Y}");
-            Console.WriteLine($"Camera Pos: {camera.Pos.X/Game1.TILE_WIDTH}, {camera.Pos.Y/Game1.TILE_WIDTH}, Scale: {camera.Scalar}");
+            Console.WriteLine($"Camera Pos: {camera.Pos.X/TILE_WIDTH}, {camera.Pos.Y/TILE_WIDTH}, Scale: {camera.Scalar}");
             
             base.Update(gameTime);
         }
@@ -171,7 +171,7 @@ namespace Prototype_Golem
                 if (entity.Render) {
                     Texture2D entityTexture;
                     textureDict.TryGetValue(entity.TextID, out entityTexture);
-                    Rectangle destRect = new Rectangle((int)(entity.Pos.X*TILE_WIDTH), (int)(entity.Pos.Y*TILE_WIDTH), entity.TextRect.Width, entity.TextRect.Height);
+                    Rectangle destRect = new Rectangle(entity.Pos.X, entity.Pos.Y, entity.TextRect.Width, entity.TextRect.Height);
                     Rectangle sourceRect = entity.TextRect;
                     spriteBatch.Draw(entityTexture, destRect, sourceRect, Color.White, 0f, new Vector2(0,0), entity.Effects, 0f);
                 }

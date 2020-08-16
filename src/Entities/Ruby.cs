@@ -7,7 +7,7 @@ namespace Prototype_Golem.Entities
         const int FRAMES_PER_ANIMATION_STEP = 10;
         const int NUMBER_OF_FRAMES = 6;
         
-        public Ruby(Vector2 pos) {
+        public Ruby(Point pos) {
             //spawns player outside of mech
             Pos = pos;
             Collide = true;

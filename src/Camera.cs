@@ -16,7 +16,7 @@ namespace Prototype_Golem
         }
 
         public Camera(float x, float y, float scalar) {
-            Pos = new Vector2(x*Game1.TILE_WIDTH,y*Game1.TILE_WIDTH);
+            Pos = new Vector2(x*Constants.TILE_WIDTH,y*Constants.TILE_WIDTH);
             Scalar = scalar;
         }
 
@@ -39,7 +39,7 @@ namespace Prototype_Golem
             }
             
             if((Keyboard.GetState().IsKeyDown(Keys.Right) || GamePad.GetState(PlayerIndex.One).IsButtonDown(Buttons.DPadRight))
-                && Pos.X-Constants.SCREEN_WIDTH*.5f > -LevelHandler.MapWidth*Game1.TILE_WIDTH
+                && Pos.X-Constants.SCREEN_WIDTH*.5f > -LevelHandler.MapWidth*Constants.TILE_WIDTH
             ) {
                 Pos += new Vector2(-Constants.CAMERA_SPEED,0);
             }
@@ -51,7 +51,7 @@ namespace Prototype_Golem
             }
             
             if((Keyboard.GetState().IsKeyDown(Keys.Down) || GamePad.GetState(PlayerIndex.One).IsButtonDown(Buttons.DPadDown))
-                && Pos.Y-Constants.SCREEN_HEIGHT*.5f > -LevelHandler.MapHeight*Game1.TILE_WIDTH
+                && Pos.Y-Constants.SCREEN_HEIGHT*.5f > -LevelHandler.MapHeight*Constants.TILE_WIDTH
             ) {
                 Pos += new Vector2(0,-Constants.CAMERA_SPEED);
             }

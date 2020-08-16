@@ -11,8 +11,8 @@ namespace Prototype_Golem
         public bool Clip {get; set; } = true; //entities like buttons that you can walk through would be set to false.
         public int TouchedSides {get; protected set;} //tells the parent entity what sides of other objects it has touched for response
         public Vector2 Speed {get; set;}
-        public Vector2 OldPos {get; set;}
-        public Vector2 Pos {get; set;}
+        public Point OldPos {get; set;}
+        public Point Pos {get; set;}
         public List<Entity> CollidedEntities {get; protected set;}
         
         public void PrepareUpdate() {

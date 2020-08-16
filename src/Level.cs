@@ -2,6 +2,7 @@ using TiledSharp;
 using System.Collections.Generic;
 using System;
 using Microsoft.Xna.Framework;
+using static Prototype_Golem.Constants;
 
 namespace Prototype_Golem
 {
@@ -17,7 +18,7 @@ namespace Prototype_Golem
 
         public int Columns {get; private set;}
         
-        public Vector2 PlayerSpawn {get; private set;} = new Vector2(1, 1);
+        public Point PlayerSpawn {get; private set;} = new Point(TILE_WIDTH, TILE_WIDTH);
         public Vector2 CameraOrigin {get; private set;} = new Vector2(1, 1);
         
 
@@ -57,11 +58,11 @@ namespace Prototype_Golem
                     //no idea how to do this except a massive switch statement for every single type of entity....
                     switch (tmxObject.Type) {
                         case "ruby":
-                            LevelEntities.Add(new Entities.Ruby(new Vector2((float)tmxObject.X/Game1.TILE_WIDTH, (float)(tmxObject.Y-tmxObject.Height)/Game1.TILE_WIDTH)));
+                            LevelEntities.Add(new Entities.Ruby(new Point((int)tmxObject.X, (int)(tmxObject.Y-tmxObject.Height))));
                             break;
                         case "spawn":
-                            PlayerSpawn = new Vector2((float)tmxObject.X/Game1.TILE_WIDTH, (float)tmxObject.Y/Game1.TILE_WIDTH);
-                            CameraOrigin = new Vector2((float)-tmxObject.X/Game1.TILE_WIDTH, (float)-tmxObject.Y/Game1.TILE_WIDTH);
+                            PlayerSpawn = new Point((int)tmxObject.X, (int)tmxObject.Y);
+                            CameraOrigin = new Vector2((float)-tmxObject.X/TILE_WIDTH, (float)-tmxObject.Y/TILE_WIDTH);
                             break;
                         default:
                             Console.Error.WriteLine($"Unknown object in map {tmxObject.Type}");

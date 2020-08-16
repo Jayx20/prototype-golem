@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace Prototype_Golem
 {
@@ -15,12 +16,12 @@ namespace Prototype_Golem
         public TextureID TextID {get; protected set;}
         public Rectangle TextRect {get; protected set;}
 
-        public Vector2 Pos {get; set;}
+        public Point Pos {get; set;}
         public Vector2 Speed {get; set;}
 
         public abstract void Update(); //very important
         public void Move() {
-            Pos += Speed;
+            Pos += new Point((int)Math.Round(Speed.X),(int)Math.Round(Speed.Y));
         }
 
         //overwrite for behaviors when colliding with certain entites

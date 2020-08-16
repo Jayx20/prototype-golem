@@ -18,7 +18,7 @@ namespace Prototype_Golem
 
         AnimationState animationState;
 
-        public Player(Vector2 pos) {
+        public Player(Point pos) {
             //spawns player outside of mech
             Pos = pos;
             Collide = true;

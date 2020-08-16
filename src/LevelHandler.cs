@@ -13,7 +13,7 @@ namespace Prototype_Golem
         public static int MapHeight {get; private set;} //map width and height in tiles (not pixels) - for checking what tiles an entity is inside
         public static int[] CollisionMap {get; private set;}
 
-        public Vector2 PlayerSpawn {get {return loadedLevel.PlayerSpawn;} }
+        public Point PlayerSpawn {get {return loadedLevel.PlayerSpawn;} }
         public Vector2 CameraOrigin {get {return loadedLevel.CameraOrigin;} }
         
 

@@ -3,6 +3,7 @@ namespace Prototype_Golem
     public static class Constants
     {
         //Graphics
+        public const int TILE_WIDTH = 32; //key variable
         public const int SCREEN_WIDTH = 1280;
         public const int SCREEN_HEIGHT = 720;
 
@@ -12,10 +13,10 @@ namespace Prototype_Golem
         public const int COYOTE_TIME = 4;
         
         //Player Physics
-        public const float GRAVITY_STRENGTH = 0.02f;
-        public const float MOVEMENT_SPEED = 0.2f;
+        public const float GRAVITY_STRENGTH = 0.64f;
+        public const float MOVEMENT_SPEED = 6.4f;
         public const float JUMP_REDUCTION_MULTIPLIER = .75f;
-        public const float JUMP_FORCE = .42f;
+        public const float JUMP_FORCE = 13.44f;
 
         //Animations
         public const int FRAMES_PER_ANIMATION_STEP = 3;
