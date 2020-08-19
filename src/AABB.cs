@@ -78,9 +78,11 @@ namespace Prototype_Golem
                         Rectangle tileBounds = new Rectangle((i % LevelHandler.MapWidth)*TILE_WIDTH, (i / LevelHandler.MapWidth)*TILE_WIDTH, TILE_WIDTH, TILE_WIDTH);
                         if (tileId < 16) { //standard tile with no slope
                             if (!vertical)
-                                ResolveHorizontalIntersect(tileId, tileBounds);
+                                if (HorizontalBounds.Intersects(tileBounds))
+                                    ResolveHorizontalIntersect(tileId, tileBounds);
                             else
-                                ResolveVerticalIntersect(tileId, tileBounds);
+                                if (VerticalBounds.Intersects(tileBounds))
+                                    ResolveVerticalIntersect(tileId, tileBounds);
                         } else throw new NotImplementedException("Tile collision type not implemented.");
                     }
                 }
@@ -88,33 +90,29 @@ namespace Prototype_Golem
         }
 
         void ResolveHorizontalIntersect(int tileId, Rectangle tileBounds) {
-            if (HorizontalBounds.Intersects(tileBounds)) {
-                //Check if we entered through the left or through the right and respond accordingly
-                if (OldBounds.Right <= tileBounds.Left && ((tileId&(int)CollisionDirections.LEFT)!=0)) { //collided from tiles left
-                    Pos = new Point(tileBounds.Left-width-offsetRight, Pos.Y);
-                    Speed = new Vector2(0, Speed.Y);
-                    TouchedSides |= (int)CollisionDirections.LEFT;
-                }
-                else if (OldBounds.Left >= tileBounds.Right && ((tileId&(int)CollisionDirections.RIGHT)!=0)) {//collided from tiles right
-                    Pos = new Point(tileBounds.Right-offsetRight, Pos.Y);
-                    Speed = new Vector2(0, Speed.Y);
-                    TouchedSides |= (int)CollisionDirections.RIGHT;
-                }
+            //Check if we entered through the left or through the right and respond accordingly
+            if (OldBounds.Right <= tileBounds.Left && ((tileId&(int)CollisionDirections.LEFT)!=0)) { //collided from tiles left
+                Pos = new Point(tileBounds.Left-width-offsetRight, Pos.Y);
+                Speed = new Vector2(0, Speed.Y);
+                TouchedSides |= (int)CollisionDirections.LEFT;
+            }
+            else if (OldBounds.Left >= tileBounds.Right && ((tileId&(int)CollisionDirections.RIGHT)!=0)) {//collided from tiles right
+                Pos = new Point(tileBounds.Right-offsetRight, Pos.Y);
+                Speed = new Vector2(0, Speed.Y);
+                TouchedSides |= (int)CollisionDirections.RIGHT;
             }
         }
 
         void ResolveVerticalIntersect(int tileId, Rectangle tileBounds) {
-            if (VerticalBounds.Intersects(tileBounds)) {
-                if(OldBounds.Bottom <= tileBounds.Top && ((tileId&(int)CollisionDirections.TOP)!=0)) { //collided from tiles top
-                    Pos = new Point(Pos.X, tileBounds.Top-height-offsetDown);
-                    Speed = new Vector2(Speed.X, 0);
-                    TouchedSides |= (int)CollisionDirections.TOP;
-                }
-                else if (OldBounds.Top >= tileBounds.Bottom && ((tileId&(int)CollisionDirections.BOTTOM)!=0)) { //collided from tiles bottom
-                    Pos = new Point(Pos.X, tileBounds.Bottom-offsetDown);
-                    Speed = new Vector2(Speed.X, 0);
-                    TouchedSides |= (int)CollisionDirections.BOTTOM;
-                }
+            if(OldBounds.Bottom <= tileBounds.Top && ((tileId&(int)CollisionDirections.TOP)!=0)) { //collided from tiles top
+                Pos = new Point(Pos.X, tileBounds.Top-height-offsetDown);
+                Speed = new Vector2(Speed.X, 0);
+                TouchedSides |= (int)CollisionDirections.TOP;
+            }
+            else if (OldBounds.Top >= tileBounds.Bottom && ((tileId&(int)CollisionDirections.BOTTOM)!=0)) { //collided from tiles bottom
+                Pos = new Point(Pos.X, tileBounds.Bottom-offsetDown);
+                Speed = new Vector2(Speed.X, 0);
+                TouchedSides |= (int)CollisionDirections.BOTTOM;
             }
         }
 

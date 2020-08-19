@@ -28,7 +28,7 @@ namespace Prototype_Golem
             TextID = TextureID.PLAYER;
             TextRect = new Rectangle(0, 0, 32, 64);
             animationState = AnimationState.STILL_RIGHT;
-            Collision = new AABB(new Point(8, 16), new Point(25, 61)); //the player is 1x2
+            Collision = new AABB(new Point(8, 16), new Point(24, 62)); //the player is 1x2
         }
         public override void Update() {
             input.Update(Keyboard.GetState(), Mouse.GetState(), GamePad.GetState(PlayerIndex.One));
