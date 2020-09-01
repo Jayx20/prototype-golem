@@ -17,6 +17,7 @@ namespace Prototype_Golem
         int coyoteTimer; //time since touching ground
 
         AnimationState animationState;
+        bool facingLeft;
 
         public Player(Point pos) {
             //spawns player outside of mech
@@ -51,13 +52,30 @@ namespace Prototype_Golem
                 coyoteTimer++;
             else if (!touchingGround && coyoteTimer >= Constants.COYOTE_TIME)
                 canJump = false;
-
-            Speed = new Vector2(0, Speed.Y); //reset X speed might change later
             
             //Movement left and right while on the ground (and midair for now)
-            if(input.Left.Held)  Speed += new Vector2(-Constants.MOVEMENT_SPEED, 0);
-            if(input.Right.Held) Speed += new Vector2(Constants.MOVEMENT_SPEED, 0);
-            
+            if(input.Left.Held && !input.Right.Held && Speed.X > -Constants.PLR_MAX_SPEED) { //go left
+                float newXVelocity = Speed.X;
+                if (Speed.X < Constants.PLR_ACCELERATION) //if we are already turning to the left
+                    newXVelocity += Math.Max(-Constants.PLR_ACCELERATION, -(Constants.PLR_MAX_SPEED+Speed.X));
+                else //if we are still going right and trying to turn, turn a little faster
+                    newXVelocity += 2*-Constants.PLR_ACCELERATION;
+                
+                newXVelocity *= MathF.Pow(1f-Constants.ACCELERATION_DAMPING, 10f);
+                Speed += new Vector2(newXVelocity, 0);
+            }
+            else if(input.Right.Held && !input.Left.Held) { //go right
+                float newXVelocity = Speed.X;
+                if (Speed.X > -Constants.PLR_ACCELERATION) //if we are already turning to the right
+                    newXVelocity += Math.Min(Constants.PLR_ACCELERATION, Constants.PLR_MAX_SPEED-Speed.X);
+                else //if we are still going left and trying to turn, turn a little faster
+                    newXVelocity += 2*Constants.PLR_ACCELERATION;
+                
+                newXVelocity *= MathF.Pow(1f-Constants.ACCELERATION_DAMPING, 10f);
+                Speed += new Vector2(newXVelocity, 0);
+            }
+            else if ((!input.Left.Held && !input.Right.Held) || (input.Left.Held && input.Right.Held)) {SlowBy(Constants.PLR_FRICTION);}
+
             //Holding up in the air
             if((!input.Up.Held && !input.Interact1.Held) && Speed.Y < 0) Speed*=new Vector2(1, Constants.JUMP_REDUCTION_MULTIPLIER);
             
@@ -72,14 +90,12 @@ namespace Prototype_Golem
                     jumpPressTimer = Constants.JUMP_REMEMBER_TIME;
             }
             else if (touchingGround && jumpPressTimer > 0) Jump();
-            
-            //if(input.Down.Held) {Speed += new Vector2(0, .2f);}
 
             Speed += gravity;
-            //Console.WriteLine($"pos = {Pos}");
-
             AnimationUpdate();
         
+            Console.WriteLine($"Speed: {Speed}");
+
         }
 
         void Jump() {
@@ -88,24 +104,48 @@ namespace Prototype_Golem
             Game1.SoundEffects[(int)SFX.JUMP].CreateInstance().Play();
         }
 
+        void SlowBy(float slowAmount) {
+            slowAmount = 1-Math.Abs(slowAmount);
+            if (Speed.X == 0) return;
+            Vector2 newSpeed;
+            bool velocityNeg = (Speed.X < 0); //true if negative
+            if (velocityNeg)
+                newSpeed = new Vector2(Speed.X*slowAmount, Speed.Y);
+            else
+                newSpeed = new Vector2(Speed.X*slowAmount, Speed.Y);
+            
+            Speed = newSpeed;
+            if (Math.Abs(Speed.X) < Constants.STOP_SPEED) Speed = new Vector2(0, Speed.Y); 
+            // if ((velocityNeg && newSpeed.X < 0) || (!velocityNeg && newSpeed.X > 0)) //returns false if we changed the sign of Speed.X
+            //     Speed = newSpeed;
+            // else
+            //     Speed = new Vector2(0, Speed.Y);
+        }
+
         void AnimationUpdate() {
             AnimationState oldAnimationState = animationState;
+            if (input.Left.Held && !input.Right.Held) facingLeft = true;
+            else if (input.Right.Held && !input.Left.Held) facingLeft = false;
 
-            if(input.Left.Held)
-                Console.Write("hi");
             //these are just naturally going to be complicated with a lot of logic not sure how else to deal with it
             if(input.Left.Held && Speed.X < 0 && touchingGround) animationState = AnimationState.WALKING_LEFT; //walking left
             else if(input.Right.Held && Speed.X > 0 && touchingGround) animationState = AnimationState.WALKING_RIGHT; //walking right
-            else { //player is still
-                if (oldAnimationState == AnimationState.WALKING_LEFT) animationState = AnimationState.STILL_LEFT;
-                else if (oldAnimationState == AnimationState.WALKING_RIGHT) animationState = AnimationState.STILL_RIGHT;
+            else if (!touchingGround) {
+                //in midair
+                if (facingLeft) animationState = AnimationState.AIR_STRAFE_LEFT;
+                else if (!facingLeft) animationState = AnimationState.AIR_STRAFE_RIGHT;
+                TextRect = new Rectangle(0, 64, 32 ,64); animationFrame = 0;
+            }
+            else { //player is still on ground
+                if (facingLeft) animationState = AnimationState.STILL_LEFT;
+                else if (!facingLeft) animationState = AnimationState.STILL_RIGHT;
                 TextRect = new Rectangle(0, 0, 32 ,64); animationFrame = 0;
             }
 
             //TODO: midair animations and movement
             
             //if facing left mirror the image
-            if (animationState == AnimationState.STILL_LEFT || animationState == AnimationState.WALKING_LEFT) {
+            if (animationState == AnimationState.STILL_LEFT || animationState == AnimationState.WALKING_LEFT || animationState == AnimationState.AIR_STRAFE_LEFT) {
                 Effects = SpriteEffects.FlipHorizontally;
             } else Effects = SpriteEffects.None;
             
@@ -132,6 +172,8 @@ namespace Prototype_Golem
             STILL_RIGHT,
             WALKING_LEFT,
             WALKING_RIGHT,
+            AIR_STRAFE_LEFT,
+            AIR_STRAFE_RIGHT,
         }
     }
 }

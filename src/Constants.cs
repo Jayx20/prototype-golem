@@ -14,9 +14,13 @@ namespace Prototype_Golem
         
         //Player Physics
         public const float GRAVITY_STRENGTH = 0.64f;
-        public const float MOVEMENT_SPEED = 6.4f;
         public const float JUMP_REDUCTION_MULTIPLIER = .75f;
         public const float JUMP_FORCE = 13.44f;
+        public const float PLR_MAX_SPEED = 7.0f;
+        public const float PLR_ACCELERATION = 1.2f;
+        public const float ACCELERATION_DAMPING = .1f; //damping that makes it harder to gain momentum as you go faster
+        public const float PLR_FRICTION = 0.1f; //slowdown when player stops trying to move
+        public const float STOP_SPEED = .1f; //if player slows down below this speed they will just stop
 
         //Animations
         public const int FRAMES_PER_ANIMATION_STEP = 3;
