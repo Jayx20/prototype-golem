@@ -9,6 +9,7 @@ using System;
 using TiledSharp;
 
 using static Prototype_Golem.Constants;
+using Prototype_Golem.Levels;
 
 namespace Prototype_Golem
 {
@@ -30,7 +31,7 @@ namespace Prototype_Golem
         LevelHandler levelHandler = new LevelHandler();
 
         //debug
-        static Player player;
+        //static Player player;
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -46,7 +47,6 @@ namespace Prototype_Golem
             camera = new Camera(-29f, -24f, 1f); //nice starting position for the camera
 
             gameEntities.Add(new Player(new Point(24*TILE_WIDTH,31*TILE_WIDTH))); player = (Player)gameEntities[0];
-            //gameEntities.Add(new Entities.Ruby(new Vector2(54.5f,8f))); ruby = (Entities.Ruby)gameEntities[1];
 
             base.Initialize();
         }
@@ -55,10 +55,11 @@ namespace Prototype_Golem
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
             
-            levelHandler.Load("test2");
+            levelHandler.Load("test3");
             //these need to run every time a map is loaded
             SoundEffects = new List<SoundEffect>();
 
+            CollisionMask.InitMaskList(Content.Load<Texture2D>(CollisionMask.MASK_IMAGE_NAME));
             textureDict.Add(TextureID.PROTOTYPE, Content.Load<Texture2D>("Images/prototype1"));
             textureDict.Add(TextureID.ENTITIES_1, Content.Load<Texture2D>("Images/entities_map"));
             textureDict.Add(TextureID.PLAYER, Content.Load<Texture2D>("Images/player"));
@@ -89,6 +90,7 @@ namespace Prototype_Golem
 
             // Update logic here
             //i have created a monstrosity
+
             foreach (Entity entity in entities) {
                 if (entity.Collide) entity.Collision.OldPos = entity.Pos;
                 entity.Update();
@@ -168,12 +170,12 @@ namespace Prototype_Golem
 
             //TODO: depth in some way so sprites can be drawn in a different order like entities can be underneath some tiles
             foreach(Entity entity in entities) {
-                if (entity.Render) {
+                if (entity.Drawable != null) {
                     Texture2D entityTexture;
-                    textureDict.TryGetValue(entity.TextID, out entityTexture);
-                    Rectangle destRect = new Rectangle(entity.Pos.X, entity.Pos.Y, entity.TextRect.Width, entity.TextRect.Height);
-                    Rectangle sourceRect = entity.TextRect;
-                    spriteBatch.Draw(entityTexture, destRect, sourceRect, Color.White, 0f, new Vector2(0,0), entity.Effects, 0f);
+                    textureDict.TryGetValue(entity.Drawable.TextID, out entityTexture);
+                    Rectangle destRect = new Rectangle(entity.Pos.X, entity.Pos.Y, entity.Drawable.TextRect.Width, entity.Drawable.TextRect.Height);
+                    Rectangle sourceRect = entity.Drawable.TextRect;
+                    spriteBatch.Draw(entityTexture, destRect, sourceRect, Color.White, 0f, new Vector2(0,0), entity.Drawable.Effects, 0f);
                 }
             } 
 

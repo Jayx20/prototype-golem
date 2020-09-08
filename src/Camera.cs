@@ -39,7 +39,7 @@ namespace Prototype_Golem
             }
             
             if((Keyboard.GetState().IsKeyDown(Keys.Right) || GamePad.GetState(PlayerIndex.One).IsButtonDown(Buttons.DPadRight))
-                && Pos.X-Constants.SCREEN_WIDTH*.5f > -LevelHandler.MapWidth*Constants.TILE_WIDTH
+                && Pos.X-Constants.SCREEN_WIDTH*.5f > -Levels.LevelHandler.MapWidth*Constants.TILE_WIDTH
             ) {
                 Pos += new Vector2(-Constants.CAMERA_SPEED,0);
             }
@@ -51,7 +51,7 @@ namespace Prototype_Golem
             }
             
             if((Keyboard.GetState().IsKeyDown(Keys.Down) || GamePad.GetState(PlayerIndex.One).IsButtonDown(Buttons.DPadDown))
-                && Pos.Y-Constants.SCREEN_HEIGHT*.5f > -LevelHandler.MapHeight*Constants.TILE_WIDTH
+                && Pos.Y-Constants.SCREEN_HEIGHT*.5f > -Levels.LevelHandler.MapHeight*Constants.TILE_WIDTH
             ) {
                 Pos += new Vector2(0,-Constants.CAMERA_SPEED);
             }

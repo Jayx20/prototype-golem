@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System;
 using Microsoft.Xna.Framework;
 
-namespace Prototype_Golem
+namespace Prototype_Golem.Levels
 {
     public class LevelHandler
     {
@@ -11,8 +11,8 @@ namespace Prototype_Golem
         //perhaps I can rewrite the getters to just get from loadedLevel instead of setting them manually inside of Load()
         public static int MapWidth {get; private set;}
         public static int MapHeight {get; private set;} //map width and height in tiles (not pixels) - for checking what tiles an entity is inside
-        public static int[] CollisionMap {get; private set;}
-
+        public static TileCollideInfo[] CollisionMap {get; private set;}
+        
         public Point PlayerSpawn {get {return loadedLevel.PlayerSpawn;} }
         public Vector2 CameraOrigin {get {return loadedLevel.CameraOrigin;} }
         

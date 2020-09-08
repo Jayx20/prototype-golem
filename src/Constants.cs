@@ -2,6 +2,8 @@ namespace Prototype_Golem
 {
     public static class Constants
     {
+        public const bool DEBUG_PRINT = true;
+
         //Graphics
         public const int TILE_WIDTH = 32; //key variable
         public const int SCREEN_WIDTH = 1280;

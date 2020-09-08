@@ -1,0 +1,29 @@
+// {type:class}
+// {direction: leftToRight}
+
+[Game1|Initialize();LoadContent();Update();Draw()]
+[Camera|Pos;Zoom|Update()]->[Game1]
+[Player|States;Timers;Animation|Jump();Interact()]-[Game1]
+[Entity|Position|Update()]
+[Game1]<-[LevelHandler|LoadLevel()]
+[Game1]<-[List<Entity>]
+[LevelHandler]<-[Level|TilesetName;MapWidth;MapHeight;PlayerSpawn;Objects|GetLayers()]
+[Level]<-[List<Entity>]
+[Entity]<>0..*->[List<Entity>]
+[Ruby]-^[Entity]
+[Player]-^[Entity]
+[Drawable|TextID;TextRect;Effects]->[Entity]
+
+[PhysicsBody|Speed|EntityCollisionDetect()]->[Entity]
+[Hitbox]->[PhysicsBody]
+[SolidPhysicsBody|Mass;Friction;Gravity|TileCollisionResponse();EntityCollisionResponse()]-^[PhysicsBody]
+[Rectangle|Rectangle|CheckIntersecting(Hitbox)]-.-^[Hitbox]
+[Circle|Radius|CheckIntersecting(Hitbox)]-.-^[Hitbox]
+[GraphicsSubsystem|not yet implemented]->[Game1]
+[Tilemap]->[Level]
+[Tilemap]-[GraphicsSubsystem]
+[Drawable]-[GraphicsSubsystem]
+[Camera]-[GraphicsSubsystem]
+[TileHeightmap]<># of tiles->[Level]
+[PhysicsBody]-[TileHeightmap]
+

@@ -56,22 +56,24 @@ namespace Prototype_Golem
             //Movement left and right while on the ground (and midair for now)
             if(input.Left.Held && !input.Right.Held && Speed.X > -Constants.PLR_MAX_SPEED) { //go left
                 float newXVelocity = Speed.X;
-                if (Speed.X < Constants.PLR_ACCELERATION) //if we are already turning to the left
+                if (Speed.X < Constants.PLR_ACCELERATION) { //if we are already turning to the left
                     newXVelocity += Math.Max(-Constants.PLR_ACCELERATION, -(Constants.PLR_MAX_SPEED+Speed.X));
+                    //newXVelocity *= Math.Max(1-(Math.Abs(newXVelocity)/Constants.PLR_MAX_SPEED)*Constants.ACCELERATION_DAMPING, 0);
+                }
                 else //if we are still going right and trying to turn, turn a little faster
                     newXVelocity += 2*-Constants.PLR_ACCELERATION;
                 
-                newXVelocity *= MathF.Pow(1f-Constants.ACCELERATION_DAMPING, 10f);
                 Speed += new Vector2(newXVelocity, 0);
             }
             else if(input.Right.Held && !input.Left.Held) { //go right
                 float newXVelocity = Speed.X;
-                if (Speed.X > -Constants.PLR_ACCELERATION) //if we are already turning to the right
+                if (Speed.X > -Constants.PLR_ACCELERATION) { //if we are already turning to the right
                     newXVelocity += Math.Min(Constants.PLR_ACCELERATION, Constants.PLR_MAX_SPEED-Speed.X);
+                    //newXVelocity *= Math.Max(1-(Math.Abs(newXVelocity)/Constants.PLR_MAX_SPEED)*Constants.ACCELERATION_DAMPING, 0);
+                }
                 else //if we are still going left and trying to turn, turn a little faster
                     newXVelocity += 2*Constants.PLR_ACCELERATION;
-                
-                newXVelocity *= MathF.Pow(1f-Constants.ACCELERATION_DAMPING, 10f);
+
                 Speed += new Vector2(newXVelocity, 0);
             }
             else if ((!input.Left.Held && !input.Right.Held) || (input.Left.Held && input.Right.Held)) {SlowBy(Constants.PLR_FRICTION);}
